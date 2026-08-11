@@ -7,21 +7,44 @@
 }
 
 body {
-    color: #333;
+    color: #2b2b2b;
     line-height: 1.6;
+    background-color: #fcfcfc;
 }
 
-/* En-tête et Menu */
+/* En-tête et Menu (Bleu Royal) */
 header {
-    background: #b22222; /* Rouge brique */
+    background: #254aa5; /* Bleu du blason */
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 5%;
+    padding: 15px 5%;
     position: sticky;
     top: 0;
     z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+/* Alignement du logo et du texte */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-img {
+    height: 55px; /* Taille idéale pour votre logo arrondi */
+    width: auto;
+    background: white; /* Fond blanc derrière le logo pour le faire ressortir */
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.logo span {
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #ffffff;
 }
 
 nav ul {
@@ -30,18 +53,24 @@ nav ul {
 }
 
 nav ul li {
-    margin-left: 20px;
+    margin-left: 25px;
 }
 
 nav ul li a {
-    color: white;
+    color: #ffffff;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 600;
+    transition: color 0.3s;
 }
 
-/* Section Bannière */
+/* Effet de survol sur le menu (Jaune Or) */
+nav ul li a:hover {
+    color: #f1c40f; 
+}
+
+/* Section Bannière (Fond sombre pour lisibilité) */
 .hero {
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://unsplash.com') no-repeat center center/cover;
+    background: linear-gradient(rgba(17, 36, 82, 0.75), rgba(0, 0, 0, 0.6)), url('https://unsplash.com') no-repeat center center/cover;
     height: 60vh;
     color: white;
     display: flex;
@@ -55,17 +84,26 @@ nav ul li a {
 .hero h1 {
     font-size: 3rem;
     margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
+/* Bouton d'action (Rouge Savoie pour le contraste) */
 .btn {
     display: inline-block;
-    background: #b22222;
+    background: #d32f2f; /* Rouge vif du blason */
     color: white;
-    padding: 10px 20px;
+    padding: 12px 26px;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 50px; /* Bouton arrondi plus moderne */
     margin-top: 20px;
     font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn:hover {
+    background: #b71c1c;
+    transform: translateY(-2px);
 }
 
 /* Sections de Contenu */
@@ -75,35 +113,64 @@ nav ul li a {
 }
 
 .gray-bg {
-    background: #f9f9f9;
+    background: #f1f4fa; /* Léger fond bleu-gris très propre */
 }
 
 .content-section h2 {
-    margin-bottom: 30px;
-    position: relative;
+    margin-bottom: 40px;
+    color: #112452; /* Bleu foncé pour les titres */
+    font-size: 2rem;
 }
 
-/* Cartes d'information */
+/* Cartes d'information avec bordure jaune or */
 .cards {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 30px;
     flex-wrap: wrap;
 }
 
 .card {
     background: white;
-    padding: 20px;
+    padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    width: 300px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    width: 320px;
+    border-top: 4px solid #f1c40f; /* Ligne Jaune Or en haut de chaque carte */
+}
+
+.card h3 {
+    margin-bottom: 15px;
+    color: #254aa5;
+}
+
+/* Liste du calendrier */
+#calendrier ul {
+    list-style: none;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+#calendrier li {
+    background: white;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-left: 4px solid #254aa5;
+}
+
+#calendrier li strong {
+    color: #d32f2f;
 }
 
 /* Pied de page */
 footer {
-    background: #222;
-    color: white;
+    background: #112452; /* Bleu nuit */
+    color: #a0b2d6;
     text-align: center;
-    padding: 20px;
+    padding: 25px;
     font-size: 0.9rem;
+    border-top: 3px solid #f1c40f;
 }
