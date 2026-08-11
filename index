@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club de Boule Lyonnaise</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- En-tête / Navigation -->
+    <header>
+        <div class="logo">🔴 Club de Boule Lyonnaise</div>
+        <nav>
+            <ul>
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#infos">Infos Pratiques</a></li>
+                <li><a href="#calendrier">Calendrier</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Section Principale / Bannière -->
+    <section id="accueil" class="hero">
+        <h1>Bienvenue au Club de Boule Lyonnaise</h1>
+        <p>Passion, précision et convivialité sur les jeux.</p>
+        <a href="#infos" class="btn">Rejoignez-nous</a>
+    </section>
+
+    <!-- Section Infos Pratiques -->
+    <section id="infos" class="content-section">
+        <h2>Infos Pratiques</h2>
+        <div class="cards">
+            <div class="card">
+                <h3>Horaires</h3>
+                <p>Mardi & Jeudi : 14h - 19h<br>Samedi : 9h - 12h</p>
+            </div>
+            <div class="card">
+                <h3>Le Boulodrome</h3>
+                <p>12 Rue du Sport, 69000 Lyon<br>Terrains couverts et extérieurs</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Calendrier -->
+    <section id="calendrier" class="content-section gray-bg">
+        <h2>Prochains Événements</h2>
+        <ul>
+            <li>🏆 <strong>15 Septembre :</strong> Concours Sociétaire en Quadrettes</li>
+            <li>📅 <strong>04 Octobre :</strong> Reprise des Interclubs</li>
+        </ul>
+    </section>
+
+    <!-- Pied de page -->
+    <footer>
+        <p>&copy; 2026 Club de Boule Lyonnaise - Tous droits réservés.</p>
+    </footer>
+
+</body>
+</html>
