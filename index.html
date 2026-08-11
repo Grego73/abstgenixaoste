@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amicale Boule St Genix Aoste</title>
+    <title>Amicale Boule St Genix Aoste - Admin</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,93 +11,305 @@
     <!-- En-tête / Navigation -->
     <header>
         <div class="logo">
-            <img src="https://scontent.flyn1-1.fna.fbcdn.net/v/t39.30808-1/470231830_122104890458675778_7717466947784906805_n.jpg?stp=dst-jpg_tt6&cstp=mx782x786&ctp=s200x200&_nc_cat=110&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=zUxrmDPHlUsQ7kNvwFkMKWP&_nc_oc=AdrqemqxeRoz65hGObX5Ax_MuGlJjxiqXrX93sJDUmJrCOuCrzYq27sNK8mJZonS0DjxIA4Cp4nngbcvYHF96krf&_nc_zt=24&_nc_ht=scontent.flyn1-1.fna&_nc_gid=S83Y53X5n2s2bJZzUck-ww&_nc_ss=7b2a8&oh=00_AQGSVt2tvIWoVk3zOwa9gQC_dnRo5-wnCl25zzx5Cvk2mw&oe=6A80CAE6" alt="Amicale Boule St Genix Aoste" class="logo-img">
+            <img src="logo.png" alt="Amicale Boule St Genix Aoste" class="logo-img">
             <span>Amicale Boule St Genix Aoste</span>
         </div>
         <nav>
             <ul>
                 <li><a href="#accueil">Accueil</a></li>
                 <li><a href="#infos">Infos Pratiques</a></li>
-                <li><a href="#palmares">Palmarès</a></li>
-                <li><a href="#calendrier">Concours</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="#espace-membres">Espace Membres</a></li>
+                <li id="menu-admin" style="display: none;"><a href="#panel-admin" class="nav-btn-admin">Tableau de Bord Admin</a></li>
+                <li id="menu-auth"><a href="#zone-connexion" class="nav-btn-auth">Connexion</a></li>
+                <li id="menu-user" style="display: none;"><span id="user-email"></span> (<span id="user-role">Membre</span>) <button onclick="deconnexion()" class="btn-logout">Déconnexion</button></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Section Principale / Bannière -->
+    <!-- Section Accueil -->
     <section id="accueil" class="hero">
         <h1>Amicale Boule St Genix Aoste</h1>
-        <p>Le club de Sport Boules (Boule Lyonnaise) qui unit la Savoie et le Dauphiné.</p>
-        <a href="https://www.facebook.com/p/Amicale-Boule-St-Genix-Aoste-61570273360707/" target="_blank" class="btn">Suivez notre Facebook</a>
+        <p>Espace de gestion connecté — Savoie & Dauphiné</p>
+        <a href="https://facebook.com" target="_blank" class="btn">Suivez notre Facebook</a>
     </section>
 
-    <!-- Section Infos Pratiques -->
-    <section id="infos" class="content-section">
-        <h2>Infos Pratiques & Terrains</h2>
-        <div class="cards">
-            <div class="card">
-                <h3>Les Jeux de la Glière</h3>
-                <p>Saint-Genix-les-Villages<br>Le site incontournable pour nos entraînements et finales de concours.</p>
+    <!-- Section Espace Membres Dynamique -->
+    <section id="espace-membres" class="content-section">
+        <h2>Contenus du Club</h2>
+        <div id="zone-privee-verrouillee" class="card" style="margin: 0 auto; max-width: 600px;">
+            <p>🔒 Connectez-vous pour accéder au covoiturage et aux convocations.</p>
+        </div>
+
+        <div id="zone-privee-deverrouillee" class="cards" style="display: none;">
+            <div class="card" style="border-top-color: #ef4444;">
+                <h3>🚗 Covoiturage</h3>
+                <div id="affichage-covoiturage"><p>Aucune annonce active.</p></div>
             </div>
-            <div class="card">
-                <h3>Concours D3 / D4</h3>
-                <p>Organisation régulière de concours officiels sur les sites de St Genix et d'Aoste.</p>
-            </div>
-            <div class="card">
-                <h3>Nous Rejoindre</h3>
-                <p>Joueurs confirmés, vétérans ou débutants : venez partager la passion des boules dans la convivialité.</p>
+            <div class="card" style="border-top-color: #1e3c8a;">
+                <h3>📋 Convocations M2/M4</h3>
+                <div id="affichage-convocations"><p>Les feuilles de match apparaîtront ici.</p></div>
             </div>
         </div>
     </section>
 
-    <!-- Section Palmarès (Nouveau !) -->
-    <section id="palmares" class="content-section gray-bg">
-        <h2>Fiers de nos Couleurs 🏆</h2>
-        <p style="max-width: 700px; margin: 0 auto 30px auto; font-size: 1.1rem;">
-            L'Amicale brille régulièrement au niveau national. Félicitations à nos qualifiés aux Championnats de France :
-        </p>
-        <div class="cards">
-            <div class="card" style="border-top-color: #d32f2f;">
-                <h3>Régine Robin</h3>
-                <p>Qualifiée en <strong>Simple F4</strong> pour représenter le club à Dardilly.</p>
+    <!-- TOUT-EN-UN : LA CONSOLE D'ADMINISTRATION GÉNÉRALE -->
+    <section id="panel-admin" class="content-section gray-bg" style="display: none;">
+        <h2>🛠️ Centre de Contrôle Général du Club</h2>
+        
+        <div class="admin-layout">
+            
+            <!-- À GAUCHE : Gestion du contenu (Accessible aux Modérateurs, Gestionnaires et Super-Admins) -->
+            <div class="admin-sidebar">
+                <div class="card admin-box" id="box-mod-content" style="display: none;">
+                    <div class="badge">Niveau 3 - Modérateur</div>
+                    <h3>Covoiturage</h3>
+                    <input type="text" id="input-covoiturage" placeholder="Ex: Départ samedi 6h pour Gap...">
+                    <button onclick="publierCovoiturage()" class="btn-admin-action-submit">Publier l'annonce</button>
+                </div>
+
+                <div class="card admin-box" id="box-gest-content" style="display: none;">
+                    <div class="badge blue">Niveau 2 - Gestionnaire</div>
+                    <h3>Convocations & Site</h3>
+                    <textarea id="input-convocations" placeholder="Collez l'ordre des jeux ou les équipes convoquées..."></textarea>
+                    <button onclick="publierConvocations()" class="btn-admin-action-submit blue">Mettre à jour le site</button>
+                </div>
             </div>
-            <div class="card" style="border-top-color: #254aa5;">
-                <h3>Équipe Dupraz</h3>
-                <p>F. Dupraz, C. Mehr et N. Poulet qualifiés en <strong>Double M2</strong> pour Valence.</p>
+
+            <!-- À DROITE : Gestion des droits des membres (EXCLUSIF SUPER-ADMIN) -->
+            <div class="admin-main-panel" id="box-superadmin-rights" style="display: none;">
+                <div class="card admin-box" style="width: 100%;">
+                    <div class="badge gold">Niveau 1 - Super-Admin (Président)</div>
+                    <h3>Gestion des Licenciés & Droits d'Accès</h3>
+                    <p style="font-size: 0.9rem; color:#64748b; margin-bottom: 20px;">Modifiez les niveaux de modération en temps réel. Les changements s'appliquent instantanément au prochain rafraîchissement de page du membre.</p>
+                    
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Adresse E-mail du Membre</th>
+                                    <th>Niveau de Droit Actuel</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="liste-membres-table">
+                                <!-- Rempli dynamiquement par le script -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card" style="border-top-color: #f1c40f;">
-                <h3>Équipe Collonge</h3>
-                <p>J. Collonge, D. Courand, P. Girerd, P. Revel et C. Berthet qualifiés en <strong>Quadrette M4</strong> pour Chalamont.</p>
+
+        </div>
+    </section>
+
+    <!-- Formulaires Connexion -->
+    <section id="zone-connexion" class="content-section">
+        <div class="auth-container">
+            <div class="auth-box" id="box-connexion">
+                <h3>Accéder à l'Espace Club</h3>
+                <input type="email" id="login-email" placeholder="Adresse e-mail">
+                <input type="password" id="login-password" placeholder="Mot de passe">
+                <button onclick="connexion()" class="btn" style="margin-top: 15px; width: 100%;">Se connecter</button>
+                <p class="toggle-auth">Nouveau joueur ? <a href="#" onclick="basculerFormulaire('inscription')">Créer un compte</a></p>
+            </div>
+
+            <div class="auth-box" id="box-inscription" style="display: none;">
+                <h3>Créer un Profil Joueur</h3>
+                <input type="email" id="register-email" placeholder="Adresse e-mail">
+                <input type="password" id="register-password" placeholder="Mot de passe (6 car. min)">
+                <button onclick="inscription()" class="btn" style="margin-top: 15px; width: 100%;">Valider l'inscription</button>
+                <p class="toggle-auth">Déjà inscrit ? <a href="#" onclick="basculerFormulaire('connexion')">Se connecter</a></p>
             </div>
         </div>
     </section>
 
-    <!-- Section Calendrier des Concours -->
-    <section id="calendrier" class="content-section">
-        <h2>Derniers Concours & Événements</h2>
-        <ul class="event-list">
-            <li><span>📅 <strong>Concours d'Août :</strong> Grandes phases finales D3 et D4 aux jeux de la Glière (Dès 17h).</span></li>
-            <li><span>💪 <strong>Vétérans à Gap :</strong> Très belle performance de notre équipe (3 parties gagnées sur 4).</span></li>
-        </ul>
-    </section>
-
-
-    <!-- Section Contact -->
-    <section id="contact" class="content-section gray-bg">
-        <h2>Contact du Club</h2>
-        <div class="card" style="margin: 0 auto; width: 100%; max-width: 500px;">
-            <h3>Bureau de l'Amicale</h3>
-            <p><strong>Président :</strong> Philippe REVEL</p>
-            <p><strong>Téléphone :</strong> 06 81 08 41 30</p>
-            <p><strong>E-mail :</strong> revelphilippe@orange.fr</p>
-        </div>
-    </section>
-
-    <!-- Pied de page -->
     <footer>
-        <p>&copy; 2026 Amicale Boule St Genix Aoste - Site internet du club.</p>
+        <p>&copy; 2026 Amicale Boule St Genix Aoste — Espace de gestion centralisé.</p>
     </footer>
 
+    <!-- Scripts de Communication Réseau (Firebase BDD) -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://gstatic.com";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs } from "https://gstatic.com";
+
+        const firebaseConfig = {
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_AUTH_DOMAIN",
+            projectId: "VOTRE_PROJECT_ID",
+            storageBucket: "VOTRE_STORAGE_BUCKET",
+            messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
+            appId: "VOTRE_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Authentification
+        window.inscription = async () => {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            try {
+                const credential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, "utilisateurs", credential.user.uid), { email: email, role: "membre" });
+                alert("Compte créé avec succès !");
+            } catch (e) { alert(e.message); }
+        };
+
+        window.connexion = () => {
+            signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value).catch(() => alert("Erreur d'authentification"));
+        };
+
+        window.deconnexion = () => { signOut(auth); };
+
+        // Surveillance de l'utilisateur connecté et affichage dynamique
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const docSnap = await getDoc(doc(db, "utilisateurs", user.uid));
+                const role = docSnap.exists() ? docSnap.data().role : "membre";
+
+                // Affichage Header
+                document.getElementById('menu-auth').style.display = 'none';
+                document.getElementById('menu-user').style.display = 'block';
+                document.getElementById('user-email').innerText = user.email;
+                document.getElementById('user-role').innerText = role.toUpperCase();
+                document.getElementById('zone-privee-verrouillee').style.display = 'none';
+                document.getElementById('zone-privee-deverrouillee').style.display = 'flex';
+                document.getElementById('zone-connexion').style.display = 'none';
+
+                // Charger le contenu du site en direct
+                recupererDonneesSite();
+
+                // Affichage sélectif de la console d'administration selon le niveau de droit
+                if (role === "superadmin" || role === "gestionnaire" || role === "moderateur") {
+                    document.getElementById('menu-admin').style.display = 'block';
+                    document.getElementById('panel-admin').style.display = 'block';
+                    document.getElementById('box-mod-content').style.display = 'block';
+
+                                    // Application stricte des 4 niveaux d'affichage de modération
+                if (role === "superadmin" || role === "gestionnaire" || role === "moderateur") {
+                    document.getElementById('menu-admin').style.display = 'block';
+                    document.getElementById('panel-admin').style.display = 'block';
+                    
+                    // Niveau 3 - Le modérateur voit sa boîte d'action
+                    document.getElementById('box-mod-content').style.display = 'block';
+
+                    // Niveau 2 - Le gestionnaire (et le superadmin) voient en plus la leur
+                    if (role === "superadmin" || role === "gestionnaire") {
+                        document.getElementById('box-gest-content').style.display = 'block';
+                    }
+                    
+                    // Niveau 1 - Seul le Super-Admin voit le tableau de gestion des droits
+                    if (role === "superadmin") {
+                        document.getElementById('box-superadmin-rights').style.display = 'block';
+                        chargerListeMembres(); // Chargement dynamique de la table des licenciés
+                    }
+                }
+            } else {
+                // CODE SI DÉCONNECTÉ : Remise à zéro complète et masquage de l'administration
+                document.getElementById('menu-auth').style.display = 'block';
+                document.getElementById('menu-user').style.display = 'none';
+                document.getElementById('menu-admin').style.display = 'none';
+                document.getElementById('panel-admin').style.display = 'none';
+                document.getElementById('zone-privee-verrouillee').style.display = 'block';
+                document.getElementById('zone-privee-deverrouillee').style.display = 'none';
+                document.getElementById('zone-connexion').style.display = 'block';
+            }
+        });
+
+        // 📊 CHARGER LA LISTE DES MEMBRES DANS LE TABLEAU (Réservé au Super-Admin)
+        async function chargerListeMembres() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "utilisateurs"));
+                const tbody = document.getElementById('liste-membres-table');
+                tbody.innerHTML = ""; // Vide le tableau avant de le recharger
+
+                querySnapshot.forEach((documentFiche) => {
+                    const d = documentFiche.data();
+                    const id = documentFiche.id;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${d.email}</strong></td>
+                        <td><span class="role-pill ${d.role}">${d.role.toUpperCase()}</span></td>
+                        <td>
+                            <select onchange="modifierDroitsEnDirect('${id}', this.value)">
+                                <option value="membre" ${d.role === 'membre' ? 'selected' : ''}>4 - Membre</option>
+                                <option value="moderateur" ${d.role === 'moderateur' ? 'selected' : ''}>3 - Modérateur</option>
+                                <option value="gestionnaire" ${d.role === 'gestionnaire' ? 'selected' : ''}>2 - Gestionnaire</option>
+                                <option value="superadmin" ${d.role === 'superadmin' ? 'selected' : ''}>1 - Super-Admin</option>
+                            </select>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                console.error("Erreur de chargement des membres : ", e);
+            }
+        }
+
+        // 🔑 MODIFIER LES DROITS D'UN MEMBRE DEPUIS LE TABLEAU VISUEL
+        window.modifierDroitsEnDirect = async (uid, nouveauRole) => {
+            try {
+                await updateDoc(doc(db, "utilisateurs", uid), { role: nouveauRole });
+                alert("Droits mis à jour avec succès pour ce licencié !");
+                chargerListeMembres(); // Rafraîchit le tableau instantanément
+            } catch (e) { 
+                alert("Erreur d'écriture : Droits insuffisants ou problème réseau."); 
+            }
+        };
+
+        // 🚗 ENREGISTRER UNE ANNONCE DE COVOITURAGE (Niveau 3 minimum)
+        window.publierCovoiturage = async () => {
+            const texte = document.getElementById('input-covoiturage').value;
+            if(!texte.trim()) return alert("Veuillez écrire un message.");
+            
+            try {
+                await setDoc(doc(db, "site_info", "covoiturage"), { contenu: texte });
+                alert("Annonce de covoiturage publiée !");
+                document.getElementById('input-covoiturage').value = ""; // Vide le champ
+                recupererDonneesSite(); // Met à jour l'affichage sur la page
+            } catch (e) { alert("Erreur de publication."); }
+        };
+
+        // 📋 ENREGISTRER LES CONVOCATIONS (Niveau 2 minimum)
+        window.publierConvocations = async () => {
+            const texte = document.getElementById('input-convocations').value;
+            if(!texte.trim()) return alert("Veuillez insérer du texte.");
+            
+            try {
+                await setDoc(doc(db, "site_info", "convocations"), { contenu: texte });
+                alert("Les convocations sont à jour sur le site !");
+                document.getElementById('input-convocations').value = ""; // Vide le champ
+                recupererDonneesSite(); // Met à jour l'affichage sur la page
+            } catch (e) { alert("Erreur de publication."); }
+        };
+
+        // 📲 RÉCUPÉRER ET AFFICHER LE CONTENU EN DIRECT POUR LES MEMBRES CONNECTÉS
+        async function recupererDonneesSite() {
+            try {
+                const docCov = await getDoc(doc(db, "site_info", "covoiturage"));
+                if(docCov.exists()) {
+                    document.getElementById('affichage-covoiturage').innerHTML = `<p>${docCov.data().contenu}</p>`;
+                }
+                
+                const docCon = await getDoc(doc(db, "site_info", "convocations"));
+                if(docCon.exists()) {
+                    document.getElementById('affichage-convocations').innerHTML = `<p>${docCon.data().contenu}</p>`;
+                }
+            } catch (e) {
+                console.error("Erreur lors de la récupération des données : ", e);
+            }
+        }
+
+        // Basculer entre formulaire de connexion et d'inscription
+        window.basculerFormulaire = (t) => {
+            document.getElementById('box-connexion').style.display = t === 'inscription' ? 'none' : 'block';
+            document.getElementById('box-inscription').style.display = t === 'inscription' ? 'block' : 'none';
+        };
+    </script>
 </body>
 </html>
+
+
