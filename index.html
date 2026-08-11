@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amicale Boule St Genix Aoste - Concours</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -14,13 +14,15 @@
             <img src="https://scontent.flyn1-1.fna.fbcdn.net/v/t39.30808-1/470231830_122104890458675778_7717466947784906805_n.jpg?stp=dst-jpg_tt6&cstp=mx782x786&ctp=s200x200&_nc_cat=110&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=zUxrmDPHlUsQ7kNvwFkMKWP&_nc_oc=AdrqemqxeRoz65hGObX5Ax_MuGlJjxiqXrX93sJDUmJrCOuCrzYq27sNK8mJZonS0DjxIA4Cp4nngbcvYHF96krf&_nc_zt=24&_nc_ht=scontent.flyn1-1.fna&_nc_gid=gqC1BRgZphF1oED1o2t8SQ&_nc_ss=7b2a8&oh=00_AQHciyCBCL3jHUxtqxYLLdjfBMIOIIqCZEhPffHpL1oxAw&oe=6A810326" alt="Amicale Boule St Genix Aoste" class="logo-img">
             <span>Amicale Boule St Genix Aoste</span>
         </div>
-        <nav>
+        <button class="menu-toggle" aria-label="Ouvrir le menu" onclick="toggleMenu()">☰</button>
+        <nav class="main-nav" id="main-nav">
             <ul>
-                <li><a href="#accueil">Accueil</a></li>
-                <li><a href="#calendrier-officiel">Calendrier Officiel</a></li>
-                <li id="menu-admin" style="display: none;"><a href="#panel-admin" class="nav-btn-admin">Tableau de Bord Admin</a></li>
-                <li id="menu-auth"><a href="#zone-connexion" class="nav-btn-auth">Connexion</a></li>
-                <li id="menu-user" style="display: none;"><span id="user-email"></span> (<span id="user-role">Membre</span>) <button onclick="deconnexion()" class="btn-logout">Déconnexion</button></li>
+                <li><a href="#accueil" onclick="closeMenu()">Accueil</a></li>
+                <li><a href="#calendrier-officiel" onclick="closeMenu()">Calendrier Officiel</a></li>
+                <li id="menu-admin" style="display: none;"><a href="#panel-admin" class="nav-btn-admin" onclick="closeMenu()">Tableau de Bord Admin</a></li>
+                <li id="menu-auth"><a href="#zone-connexion" class="nav-btn-auth" onclick="closeMenu(); afficherFormulaireConnexion();">Connexion</a></li>
+                <li id="menu-inscription" style="display: none;"><a href="#zone-connexion" class="nav-btn-auth" onclick="closeMenu(); afficherFormulaireInscription();">Inscription</a></li>
+                <li id="menu-user" style="display: none;"><span id="user-email"></span> (<span id="user-role">Membre</span>) <button onclick="deconnexion(); closeMenu();" class="btn-logout">Déconnexion</button></li>
             </ul>
         </nav>
     </header>
@@ -28,6 +30,28 @@
     <section id="accueil" class="hero">
         <h1>Calendrier Événementiel du Club</h1>
         <p>Retrouvez toutes les dates officielles des concours de la Savoie.</p>
+    </section>
+
+    <section class="hero-highlight">
+        <div class="hero-highlight-card">
+            <h3>Suivi en temps réel</h3>
+            <p>Consultez les concours officiels, leurs lieux et formats directement depuis la base club.</p>
+        </div>
+    </section>
+
+    <section class="info-grid">
+        <div class="info-card">
+            <h3>📅 Programmes à venir</h3>
+            <p>Les dates officielles sont mises à jour rapidement pour suivre l’actualité du club.</p>
+        </div>
+        <div class="info-card">
+            <h3>📍 Lieux et formats</h3>
+            <p>Chaque concours affiche son boulodrome, son nom et sa division dans un tableau clair.</p>
+        </div>
+        <div class="info-card">
+            <h3>🔐 Accès sécurisé</h3>
+            <p>La consultation et la gestion restent réservées aux membres autorisés du club.</p>
+        </div>
     </section>
 
     <!-- SECTION VISIBLE PAR TOUS LES MEMBRES CONNECTÉS -->
@@ -44,8 +68,15 @@
                     </tr>
                 </thead>
                 <tbody id="liste-concours-membres">
-                    <!-- Rempli en temps réel par la base de données -->
-                </tbody>
+                <tr>
+                    <td colspan="4" class="table-loading">
+                        Chargement des concours...
+                        <div class="dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
             </table>
         </div>
     </section>
@@ -96,28 +127,94 @@
     <section id="zone-connexion" class="content-section">
         <div class="auth-container">
             <div class="auth-box" id="box-connexion">
-                <h3>Accéder au Calendrier</h3>
-                <input type="email" id="login-email" placeholder="Adresse e-mail">
-                <input type="password" id="login-password" placeholder="Mot de passe">
-                <button onclick="connexion()" class="btn" style="margin-top: 15px; width: 100%;">Se connecter</button>
+                <h3 id="auth-title">Accéder au Calendrier</h3>
+
+                <div id="form-connexion">
+                    <input type="email" id="login-email" placeholder="Adresse e-mail">
+                    <input type="password" id="login-password" placeholder="Mot de passe">
+                    <button onclick="connexion()" class="btn" style="margin-top: 15px; width: 100%;">Se connecter</button>
+                    <p class="auth-switch">
+                        Pas encore membre ? <a href="#" onclick="event.preventDefault(); afficherFormulaireInscription();">Créer votre inscription</a>
+                    </p>
+                </div>
+
+                <div id="form-inscription" style="display: none;">
+                    <div class="form-row">
+                        <input type="text" id="insc-nom" placeholder="Nom *">
+                        <input type="text" id="insc-prenom" placeholder="Prénom *">
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="insc-pseudo" placeholder="Pseudo (facultatif)">
+                        <input type="email" id="insc-email" placeholder="Email *">
+                    </div>
+                    <div class="form-row society-row">
+                        <div class="society-field">
+                            <select id="insc-societe-select" class="form-select">
+                                <option value="">Sélectionnez une société déjà inscrite *</option>
+                            </select>
+                        </div>
+                        <p class="auth-hint">Si votre club n’apparaît pas, choisissez « Autre » puis saisissez son nom.</p>
+                        <div class="society-field" id="row-societe-autre" style="display: none;">
+                            <input type="text" id="insc-societe-autre" placeholder="Nom de votre société / club *">
+                        </div>
+                        <div class="society-field">
+                            <input type="text" id="insc-licence" placeholder="Numéro de licence (facultatif)">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <input type="tel" id="insc-telephone" placeholder="Téléphone (facultatif)">
+                    </div>
+                    <div id="inscription-message" class="auth-message" role="status"></div>
+                    <button onclick="inscrireMembre()" class="btn" style="margin-top: 10px; width: 100%;">S'inscrire</button>
+                    <p class="auth-switch">
+                        Déjà membre ? <a href="#" onclick="event.preventDefault(); afficherFormulaireConnexion();">Se connecter</a>
+                    </p>
+                </div>
             </div>
         </div>
     </section>
 
+    <footer>
+        <div class="footer-content">
+            <p>© 2026 Amicale Boule St Genix Aoste</p>
+            <p>Calendrier des concours officiels • Gestion club • Accès sécurisé</p>
+        </div>
+    </footer>
+
     <!-- SCRIPT FIREBASE LOGIQUE CLOUD -->
     <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://gstatic.com";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, query, orderBy } from "https://gstatic.com";
+        window.toggleMenu = () => {
+            const nav = document.getElementById('main-nav');
+            if (nav) {
+                nav.classList.toggle('open');
+            }
+        };
+
+        window.closeMenu = () => {
+            const nav = document.getElementById('main-nav');
+            if (nav) {
+                nav.classList.remove('open');
+            }
+        };
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                closeMenu();
+            }
+        });
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, setDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDZl7eLGiA4TpyOjFt5Zk-X7C-7YSBRyZI",
-          authDomain: "amicale-boule-st-genix-aoste.firebaseapp.com",
-          databaseURL: "https://amicale-boule-st-genix-aoste-default-rtdb.europe-west1.firebasedatabase.app",
-          projectId: "amicale-boule-st-genix-aoste",
-          storageBucket: "amicale-boule-st-genix-aoste.firebasestorage.app",
-          messagingSenderId: "120103708413",
-          appId: "1:120103708413:web:033d8c5aa8fd6409718094"
+            apiKey: "AIzaSyDZl7eLGiA4TpyOjFt5Zk-X7C-7YSBRyZI",
+            authDomain: "amicale-boule-st-genix-aoste.firebaseapp.com",
+            databaseURL: "https://amicale-boule-st-genix-aoste-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "amicale-boule-st-genix-aoste",
+            storageBucket: "amicale-boule-st-genix-aoste.firebasestorage.app",
+            messagingSenderId: "120103708413",
+            appId: "1:120103708413:web:033d8c5aa8fd6409718094"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -125,10 +222,189 @@
         const db = getFirestore(app);
 
         // Connexion standard
+        window.afficherFormulaireConnexion = () => {
+            document.getElementById('form-connexion').style.display = 'block';
+            document.getElementById('form-inscription').style.display = 'none';
+            document.getElementById('auth-title').innerText = 'Accéder au Calendrier';
+            document.getElementById('inscription-message').innerText = '';
+        };
+
+        window.afficherFormulaireInscription = async () => {
+            document.getElementById('form-connexion').style.display = 'none';
+            document.getElementById('form-inscription').style.display = 'block';
+            document.getElementById('auth-title').innerText = 'Demander votre inscription';
+            document.getElementById('inscription-message').innerText = '';
+            await chargerSocietesDansSelect();
+        };
+
+        async function chargerSocietesDansSelect() {
+            const select = document.getElementById('insc-societe-select');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Sélectionnez une société déjà inscrite *</option><option value="autre">Autre (mon club n’est pas listé)</option>';
+
+            try {
+                const snapshot = await getDocs(collection(db, 'inscriptions'));
+                const societes = new Set();
+
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (data.societe) {
+                        societes.add(data.societe.trim());
+                    }
+                });
+
+                [...societes].sort((a, b) => a.localeCompare(b, 'fr')).forEach((nom) => {
+                    const option = document.createElement('option');
+                    option.value = nom;
+                    option.textContent = nom;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Erreur chargement sociétés :', e);
+            }
+        }
+
+        document.getElementById('insc-societe-select').addEventListener('change', () => {
+            const rowAutre = document.getElementById('row-societe-autre');
+            const inputAutre = document.getElementById('insc-societe-autre');
+            const isAutre = document.getElementById('insc-societe-select').value === 'autre';
+            rowAutre.style.display = isAutre ? 'block' : 'none';
+            inputAutre.required = isAutre;
+            if (!isAutre) {
+                inputAutre.value = '';
+            }
+        });
+
+        async function assurerAuthAnonymeTemporaire() {
+            if (auth.currentUser && auth.currentUser.isAnonymous) {
+                return auth.currentUser;
+            }
+            if (auth.currentUser && !auth.currentUser.isAnonymous) {
+                return auth.currentUser;
+            }
+            const cred = await signInAnonymously(auth);
+            return cred.user;
+        }
+
+        async function initialiserCollectionInscriptions() {
+            const schemaRef = doc(db, 'inscriptions', '__schema__');
+            const schemaSnap = await getDoc(schemaRef);
+
+            if (!schemaSnap.exists()) {
+                await setDoc(schemaRef, {
+                    colonnes: ['nom', 'prenom', 'pseudo', 'email', 'societe', 'numeroLicence', 'telephone', 'statut', 'creeLe'],
+                    creeLe: serverTimestamp()
+                });
+            }
+        }
+
         window.connexion = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value).catch(() => alert("Identifiants erronés"));
+            signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value)
+                .catch(() => alert("Identifiants erronés"));
         };
         window.deconnexion = () => { signOut(auth); };
+
+        window.inscrireMembre = async () => {
+            const nom = document.getElementById('insc-nom').value.trim();
+            const prenom = document.getElementById('insc-prenom').value.trim();
+            const pseudo = document.getElementById('insc-pseudo').value.trim();
+            const email = document.getElementById('insc-email').value.trim().toLowerCase();
+            const societeSelect = document.getElementById('insc-societe-select');
+            const societeAutre = document.getElementById('insc-societe-autre');
+            const useAutre = societeSelect.value === 'autre' || (societeSelect.value === '' && societeAutre.value.trim() !== '');
+            const societe = useAutre ? societeAutre.value.trim() : societeSelect.value.trim();
+            const numeroLicence = document.getElementById('insc-licence').value.trim();
+            const telephone = document.getElementById('insc-telephone').value.trim();
+            const messageEl = document.getElementById('inscription-message');
+
+            messageEl.innerText = '';
+            messageEl.className = 'auth-message';
+
+            const erreurs = [];
+            if (!nom) erreurs.push('Le nom est obligatoire.');
+            if (!prenom) erreurs.push('Le prénom est obligatoire.');
+            if (!email) erreurs.push('L’e-mail est obligatoire.');
+            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) erreurs.push('L’e-mail n’est pas valide.');
+            if (!societe) erreurs.push('La société d’origine est obligatoire.');
+            if (pseudo && pseudo.length < 2) erreurs.push('Le pseudo doit contenir au moins 2 caractères.');
+            if (numeroLicence && numeroLicence.length < 3) erreurs.push('Le numéro de licence doit contenir au moins 3 caractères.');
+            if (telephone && !/^(?:\+33|0)[1-9](?:\d{8})$/.test(telephone.replace(/\s+/g, ''))) erreurs.push('Le téléphone doit être un numéro français valide.');
+
+            if (erreurs.length > 0) {
+                messageEl.classList.add('error');
+                messageEl.innerText = erreurs.join(' ');
+                return;
+            }
+
+            const pseudoFinal = pseudo || prenom;
+
+            try {
+                const [inscriptionsSnap, utilisateursSnap, pseudoSnap, licenceSnap] = await Promise.all([
+                    getDocs(query(collection(db, 'inscriptions'), where('email', '==', email))),
+                    getDocs(query(collection(db, 'utilisateurs'), where('email', '==', email))),
+                    pseudoFinal ? getDocs(query(collection(db, 'inscriptions'), where('pseudo', '==', pseudoFinal))) : Promise.resolve({ empty: true }),
+                    numeroLicence ? getDocs(query(collection(db, 'inscriptions'), where('numeroLicence', '==', numeroLicence))) : Promise.resolve({ empty: true })
+                ]);
+
+                if (!inscriptionsSnap.empty || !utilisateursSnap.empty) {
+                    messageEl.classList.add('error');
+                    messageEl.innerText = 'Une inscription avec cet e-mail existe déjà.';
+                    return;
+                }
+
+                if (!pseudoSnap.empty) {
+                    messageEl.classList.add('error');
+                    messageEl.innerText = 'Ce pseudo est déjà utilisé.';
+                    return;
+                }
+
+                if (!licenceSnap.empty) {
+                    messageEl.classList.add('error');
+                    messageEl.innerText = 'Ce numéro de licence est déjà associé à une inscription.';
+                    return;
+                }
+
+                const utilisateurPourEcriture = await assurerAuthAnonymeTemporaire();
+                if (!utilisateurPourEcriture) {
+                    throw new Error('Impossible d’initialiser l’authentification pour l’enregistrement.');
+                }
+
+                await initialiserCollectionInscriptions();
+
+                await addDoc(collection(db, 'inscriptions'), {
+                    nom,
+                    prenom,
+                    pseudo: pseudoFinal,
+                    email,
+                    societe,
+                    numeroLicence: numeroLicence || null,
+                    telephone: telephone || null,
+                    statut: 'en_attente',
+                    creeLe: serverTimestamp()
+                });
+
+                if (auth.currentUser && auth.currentUser.isAnonymous) {
+                    await signOut(auth);
+                }
+
+                messageEl.className = 'auth-message success';
+                messageEl.innerText = 'Demande d’inscription enregistrée avec succès. Un administrateur pourra valider votre accès.';
+
+                document.getElementById('insc-nom').value = '';
+                document.getElementById('insc-prenom').value = '';
+                document.getElementById('insc-pseudo').value = '';
+                document.getElementById('insc-email').value = '';
+                document.getElementById('insc-societe-select').value = '';
+                document.getElementById('insc-societe-autre').value = '';
+                document.getElementById('row-societe-autre').style.display = 'none';
+                document.getElementById('insc-licence').value = '';
+                document.getElementById('insc-telephone').value = '';
+            } catch (e) {
+                messageEl.className = 'auth-message error';
+                messageEl.innerText = 'Erreur lors de l’enregistrement : ' + e.message;
+            }
+        };
 
         // Écoute de l'utilisateur connecté
         onAuthStateChanged(auth, async (user) => {
@@ -137,6 +413,7 @@
                 const role = docSnap.exists() ? docSnap.data().role : "membre";
 
                 document.getElementById('menu-auth').style.display = 'none';
+                document.getElementById('menu-inscription').style.display = 'none';
                 document.getElementById('menu-user').style.display = 'block';
                 document.getElementById('user-email').innerText = user.email;
                 document.getElementById('user-role').innerText = role.toUpperCase();
@@ -160,8 +437,10 @@
             } else {
                 document.getElementById('panel-admin').style.display = 'none';
                 document.getElementById('menu-auth').style.display = 'block';
+                document.getElementById('menu-inscription').style.display = 'block';
                 document.getElementById('menu-user').style.display = 'none';
                 document.getElementById('zone-connexion').style.display = 'block';
+                afficherFormulaireConnexion();
             }
         });
 
@@ -172,7 +451,7 @@
             const nom = document.getElementById('add-concours-nom').value;
             const format = document.getElementById('add-concours-format').value;
 
-            if(!date || !lieu || !nom || !format) return alert("Veuillez remplir tous les champs du formulaire.");
+            if (!date || !lieu || !nom || !format) return alert("Veuillez remplir tous les champs du formulaire.");
 
             try {
                 // Création automatique de la table "concours" et insertion de la ligne
@@ -185,13 +464,13 @@
                 });
 
                 alert("Nouveau concours enregistré avec succès !");
-                
+
                 // Réinitialisation des champs du formulaire
                 document.getElementById('add-concours-date').value = "";
                 document.getElementById('add-concours-lieu').value = "";
                 document.getElementById('add-concours-nom').value = "";
                 document.getElementById('add-concours-format').value = "";
-                
+
                 // Rafraîchir la table d'affichage
                 recupererConcoursPourMembres();
             } catch (e) {
@@ -202,27 +481,38 @@
         // 📲 RÉCUPÉRER TOUS LES CONCOURS POUR LES AFFICHER AUX JOUEURS
         async function recupererConcoursPourMembres() {
             const tbody = document.getElementById('liste-concours-membres');
-            tbody.innerHTML = ""; // Réinitialise l'affichage
+            tbody.innerHTML = "";
 
             try {
                 const querySnapshot = await getDocs(collection(db, "concours"));
-                if(querySnapshot.empty) {
-                tbody.innerHTML = <tr><td colspan="4" style="text-align:center;
-                color:#64748b;">Aucun concours officiel répertorié pour le moment.</td></tr>;
-                return;
-                }
-            querySnapshot.forEach((fiche) => {
-                const c = fiche.data();
-                const tr = document.createElement('tr');
-                tr.innerHTML = <td><span class="role-pill moderateur" style="color:#000;">${c.date}</span></td> <td><strong>${c.lieu}</strong></td> <td>${c.nom}</td> <td><span class="role-pill membre">${c.format}</span></td>;
-                tbody.appendChild(tr);
-            });
-        } catch(e) {
-            console.error("Erreur de lecture de la table concours :", e);
-        }
-    }       
-                    
-                    
-</html>
 
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align:center; color:#64748b;">
+                                Aucun concours officiel répertorié pour le moment.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                querySnapshot.forEach((fiche) => {
+                    const c = fiche.data();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span class="role-pill moderateur" style="color:#000;">${c.date}</span></td>
+                        <td><strong>${c.lieu}</strong></td>
+                        <td>${c.nom}</td>
+                        <td><span class="role-pill membre">${c.format}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                console.error("Erreur de lecture de la table concours :", e);
+            }
+        }
+    </script>
+</body>
+</html>
 
