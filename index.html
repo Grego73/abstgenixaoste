@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amicale Boule St Genix Aoste - Admin</title>
+    <title>Amicale Boule St Genix Aoste - Concours</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,8 +17,7 @@
         <nav>
             <ul>
                 <li><a href="#accueil">Accueil</a></li>
-                <li><a href="#infos">Infos Pratiques</a></li>
-                <li><a href="#espace-membres">Espace Membres</a></li>
+                <li><a href="#calendrier-officiel">Calendrier Officiel</a></li>
                 <li id="menu-admin" style="display: none;"><a href="#panel-admin" class="nav-btn-admin">Tableau de Bord Admin</a></li>
                 <li id="menu-auth"><a href="#zone-connexion" class="nav-btn-auth">Connexion</a></li>
                 <li id="menu-user" style="display: none;"><span id="user-email"></span> (<span id="user-role">Membre</span>) <button onclick="deconnexion()" class="btn-logout">Déconnexion</button></li>
@@ -26,112 +25,90 @@
         </nav>
     </header>
 
-    <!-- Section Accueil -->
     <section id="accueil" class="hero">
-        <h1>Amicale Boule St Genix Aoste</h1>
-        <p>Espace de gestion connecté — Savoie & Dauphiné</p>
-        <a href="https://facebook.com" target="_blank" class="btn">Suivez notre Facebook</a>
+        <h1>Calendrier Événementiel du Club</h1>
+        <p>Retrouvez toutes les dates officielles des concours de la Savoie.</p>
     </section>
 
-    <!-- Section Espace Membres Dynamique -->
-    <section id="espace-membres" class="content-section">
-        <h2>Contenus du Club</h2>
-        <div id="zone-privee-verrouillee" class="card" style="margin: 0 auto; max-width: 600px;">
-            <p>🔒 Connectez-vous pour accéder au covoiturage et aux convocations.</p>
-        </div>
-
-        <div id="zone-privee-deverrouillee" class="cards" style="display: none;">
-            <div class="card" style="border-top-color: #ef4444;">
-                <h3>🚗 Covoiturage</h3>
-                <div id="affichage-covoiturage"><p>Aucune annonce active.</p></div>
-            </div>
-            <div class="card" style="border-top-color: #1e3c8a;">
-                <h3>📋 Convocations M2/M4</h3>
-                <div id="affichage-convocations"><p>Les feuilles de match apparaîtront ici.</p></div>
-            </div>
+    <!-- SECTION VISIBLE PAR TOUS LES MEMBRES CONNECTÉS -->
+    <section id="calendrier-officiel" class="content-section">
+        <h2>Dates & Concours Officiels</h2>
+        <div class="table-responsive" style="max-width: 900px; margin: 0 auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Lieu / Boulodrome</th>
+                        <th>Nom du Concours</th>
+                        <th>Format / Division</th>
+                    </tr>
+                </thead>
+                <tbody id="liste-concours-membres">
+                    <!-- Rempli en temps réel par la base de données -->
+                </tbody>
+            </table>
         </div>
     </section>
 
-    <!-- TOUT-EN-UN : LA CONSOLE D'ADMINISTRATION GÉNÉRALE -->
+    <!-- CONSOLE D'ADMINISTRATION GÉNÉRALE -->
     <section id="panel-admin" class="content-section gray-bg" style="display: none;">
         <h2>🛠️ Centre de Contrôle Général du Club</h2>
         
         <div class="admin-layout">
-            
-            <!-- À GAUCHE : Gestion du contenu (Accessible aux Modérateurs, Gestionnaires et Super-Admins) -->
+            <!-- AJOUT DE CONCOURS (Accessible Niveau 2 : Gestionnaires et Super-Admins) -->
             <div class="admin-sidebar">
-                <div class="card admin-box" id="box-mod-content" style="display: none;">
-                    <div class="badge">Niveau 3 - Modérateur</div>
-                    <h3>Covoiturage</h3>
-                    <input type="text" id="input-covoiturage" placeholder="Ex: Départ samedi 6h pour Gap...">
-                    <button onclick="publierCovoiturage()" class="btn-admin-action-submit">Publier l'annonce</button>
-                </div>
-
-                <div class="card admin-box" id="box-gest-content" style="display: none;">
+                <div class="card admin-box" id="box-ajout-concours" style="display: none;">
                     <div class="badge blue">Niveau 2 - Gestionnaire</div>
-                    <h3>Convocations & Site</h3>
-                    <textarea id="input-convocations" placeholder="Collez l'ordre des jeux ou les équipes convoquées..."></textarea>
-                    <button onclick="publierConvocations()" class="btn-admin-action-submit blue">Mettre à jour le site</button>
+                    <h3>Ajouter une date officielle</h3>
+                    
+                    <input type="text" id="add-concours-date" placeholder="Ex: Sa 05 Avril (8h00)" required>
+                    <input type="text" id="add-concours-lieu" placeholder="Ex: St Genix Aoste" required>
+                    <input type="text" id="add-concours-nom" placeholder="Ex: Challenge Thierry BEDOT" required>
+                    <input type="text" id="add-concours-format" placeholder="Ex: 64 S Poules Promo M3/M4" required>
+                    
+                    <button onclick="creerConcoursEnBDD()" class="btn-admin-action-submit blue">Enregistrer le concours</button>
                 </div>
             </div>
 
-            <!-- À DROITE : Gestion des droits des membres (EXCLUSIF SUPER-ADMIN) -->
+            <!-- TABLEAU DES COMPTES UTILISATEURS (Exclusif Super-Admin) -->
             <div class="admin-main-panel" id="box-superadmin-rights" style="display: none;">
                 <div class="card admin-box" style="width: 100%;">
-                    <div class="badge gold">Niveau 1 - Super-Admin (Président)</div>
+                    <div class="badge gold">Niveau 1 - Super-Admin</div>
                     <h3>Gestion des Licenciés & Droits d'Accès</h3>
-                    <p style="font-size: 0.9rem; color:#64748b; margin-bottom: 20px;">Modifiez les niveaux de modération en temps réel. Les changements s'appliquent instantanément au prochain rafraîchissement de page du membre.</p>
-                    
                     <div class="table-responsive">
                         <table class="admin-table">
                             <thead>
                                 <tr>
-                                    <th>Adresse E-mail du Membre</th>
-                                    <th>Niveau de Droit Actuel</th>
+                                    <th>Adresse E-mail</th>
+                                    <th>Droit Actuel</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="liste-membres-table">
-                                <!-- Rempli dynamiquement par le script -->
-                            </tbody>
+                            <tbody id="liste-membres-table"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
 
-    <!-- Formulaires Connexion -->
+    <!-- ZONE CONNEXION -->
     <section id="zone-connexion" class="content-section">
         <div class="auth-container">
             <div class="auth-box" id="box-connexion">
-                <h3>Accéder à l'Espace Club</h3>
+                <h3>Accéder au Calendrier</h3>
                 <input type="email" id="login-email" placeholder="Adresse e-mail">
                 <input type="password" id="login-password" placeholder="Mot de passe">
                 <button onclick="connexion()" class="btn" style="margin-top: 15px; width: 100%;">Se connecter</button>
-                <p class="toggle-auth">Nouveau joueur ? <a href="#" onclick="basculerFormulaire('inscription')">Créer un compte</a></p>
-            </div>
-
-            <div class="auth-box" id="box-inscription" style="display: none;">
-                <h3>Créer un Profil Joueur</h3>
-                <input type="email" id="register-email" placeholder="Adresse e-mail">
-                <input type="password" id="register-password" placeholder="Mot de passe (6 car. min)">
-                <button onclick="inscription()" class="btn" style="margin-top: 15px; width: 100%;">Valider l'inscription</button>
-                <p class="toggle-auth">Déjà inscrit ? <a href="#" onclick="basculerFormulaire('connexion')">Se connecter</a></p>
             </div>
         </div>
     </section>
 
-    <footer>
-        <p>&copy; 2026 Amicale Boule St Genix Aoste — Espace de gestion centralisé.</p>
-    </footer>
-
-    <!-- Scripts de Communication Réseau (Firebase BDD) -->
+    <!-- SCRIPT FIREBASE LOGIQUE CLOUD -->
     <script type="module">
         import { initializeApp } from "https://gstatic.com";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://gstatic.com";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs } from "https://gstatic.com";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://gstatic.com";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, query, orderBy } from "https://gstatic.com";
 
         const firebaseConfig = {
             apiKey: "VOTRE_API_KEY",
@@ -146,170 +123,105 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Authentification
-        window.inscription = async () => {
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            try {
-                const credential = await createUserWithEmailAndPassword(auth, email, password);
-                await setDoc(doc(db, "utilisateurs", credential.user.uid), { email: email, role: "membre" });
-                alert("Compte créé avec succès !");
-            } catch (e) { alert(e.message); }
-        };
-
+        // Connexion standard
         window.connexion = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value).catch(() => alert("Erreur d'authentification"));
+            signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value).catch(() => alert("Identifiants erronés"));
         };
-
         window.deconnexion = () => { signOut(auth); };
 
-        // Surveillance de l'utilisateur connecté et affichage dynamique
+        // Écoute de l'utilisateur connecté
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const docSnap = await getDoc(doc(db, "utilisateurs", user.uid));
                 const role = docSnap.exists() ? docSnap.data().role : "membre";
 
-                // Affichage Header
                 document.getElementById('menu-auth').style.display = 'none';
                 document.getElementById('menu-user').style.display = 'block';
                 document.getElementById('user-email').innerText = user.email;
                 document.getElementById('user-role').innerText = role.toUpperCase();
-                document.getElementById('zone-privee-verrouillee').style.display = 'none';
-                document.getElementById('zone-privee-deverrouillee').style.display = 'flex';
                 document.getElementById('zone-connexion').style.display = 'none';
 
-                // Charger le contenu du site en direct
-                recupererDonneesSite();
+                // Lancement de la lecture des tables Cloud
+                recupererConcoursPourMembres();
 
-                // Affichage sélectif de la console d'administration selon le niveau de droit
+                // Gestion des accès selon le rôle
                 if (role === "superadmin" || role === "gestionnaire" || role === "moderateur") {
                     document.getElementById('menu-admin').style.display = 'block';
                     document.getElementById('panel-admin').style.display = 'block';
-                    document.getElementById('box-mod-content').style.display = 'block';
 
-                                    // Application stricte des 4 niveaux d'affichage de modération
-                if (role === "superadmin" || role === "gestionnaire" || role === "moderateur") {
-                    document.getElementById('menu-admin').style.display = 'block';
-                    document.getElementById('panel-admin').style.display = 'block';
-                    
-                    // Niveau 3 - Le modérateur voit sa boîte d'action
-                    document.getElementById('box-mod-content').style.display = 'block';
-
-                    // Niveau 2 - Le gestionnaire (et le superadmin) voient en plus la leur
                     if (role === "superadmin" || role === "gestionnaire") {
-                        document.getElementById('box-gest-content').style.display = 'block';
+                        document.getElementById('box-ajout-concours').style.display = 'block';
                     }
-                    
-                    // Niveau 1 - Seul le Super-Admin voit le tableau de gestion des droits
                     if (role === "superadmin") {
                         document.getElementById('box-superadmin-rights').style.display = 'block';
-                        chargerListeMembres(); // Chargement dynamique de la table des licenciés
                     }
                 }
             } else {
-                // CODE SI DÉCONNECTÉ : Remise à zéro complète et masquage de l'administration
+                document.getElementById('panel-admin').style.display = 'none';
                 document.getElementById('menu-auth').style.display = 'block';
                 document.getElementById('menu-user').style.display = 'none';
-                document.getElementById('menu-admin').style.display = 'none';
-                document.getElementById('panel-admin').style.display = 'none';
-                document.getElementById('zone-privee-verrouillee').style.display = 'block';
-                document.getElementById('zone-privee-deverrouillee').style.display = 'none';
                 document.getElementById('zone-connexion').style.display = 'block';
             }
         });
 
-        // 📊 CHARGER LA LISTE DES MEMBRES DANS LE TABLEAU (Réservé au Super-Admin)
-        async function chargerListeMembres() {
+        // 📝 AJOUTER UN NOUVEAU CONCOURS DANS LA TABLE FIRESTORE (Niveau 2+)
+        window.creerConcoursEnBDD = async () => {
+            const date = document.getElementById('add-concours-date').value;
+            const lieu = document.getElementById('add-concours-lieu').value;
+            const nom = document.getElementById('add-concours-nom').value;
+            const format = document.getElementById('add-concours-format').value;
+
+            if(!date || !lieu || !nom || !format) return alert("Veuillez remplir tous les champs du formulaire.");
+
             try {
-                const querySnapshot = await getDocs(collection(db, "utilisateurs"));
-                const tbody = document.getElementById('liste-membres-table');
-                tbody.innerHTML = ""; // Vide le tableau avant de le recharger
-
-                querySnapshot.forEach((documentFiche) => {
-                    const d = documentFiche.data();
-                    const id = documentFiche.id;
-
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${d.email}</strong></td>
-                        <td><span class="role-pill ${d.role}">${d.role.toUpperCase()}</span></td>
-                        <td>
-                            <select onchange="modifierDroitsEnDirect('${id}', this.value)">
-                                <option value="membre" ${d.role === 'membre' ? 'selected' : ''}>4 - Membre</option>
-                                <option value="moderateur" ${d.role === 'moderateur' ? 'selected' : ''}>3 - Modérateur</option>
-                                <option value="gestionnaire" ${d.role === 'gestionnaire' ? 'selected' : ''}>2 - Gestionnaire</option>
-                                <option value="superadmin" ${d.role === 'superadmin' ? 'selected' : ''}>1 - Super-Admin</option>
-                            </select>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+                // Création automatique de la table "concours" et insertion de la ligne
+                await addDoc(collection(db, "concours"), {
+                    date: date,
+                    lieu: lieu,
+                    nom: nom,
+                    format: format,
+                    creeLe: new Date()
                 });
-            } catch (e) {
-                console.error("Erreur de chargement des membres : ", e);
-            }
-        }
 
-        // 🔑 MODIFIER LES DROITS D'UN MEMBRE DEPUIS LE TABLEAU VISUEL
-        window.modifierDroitsEnDirect = async (uid, nouveauRole) => {
-            try {
-                await updateDoc(doc(db, "utilisateurs", uid), { role: nouveauRole });
-                alert("Droits mis à jour avec succès pour ce licencié !");
-                chargerListeMembres(); // Rafraîchit le tableau instantanément
-            } catch (e) { 
-                alert("Erreur d'écriture : Droits insuffisants ou problème réseau."); 
-            }
-        };
-
-        // 🚗 ENREGISTRER UNE ANNONCE DE COVOITURAGE (Niveau 3 minimum)
-        window.publierCovoiturage = async () => {
-            const texte = document.getElementById('input-covoiturage').value;
-            if(!texte.trim()) return alert("Veuillez écrire un message.");
-            
-            try {
-                await setDoc(doc(db, "site_info", "covoiturage"), { contenu: texte });
-                alert("Annonce de covoiturage publiée !");
-                document.getElementById('input-covoiturage').value = ""; // Vide le champ
-                recupererDonneesSite(); // Met à jour l'affichage sur la page
-            } catch (e) { alert("Erreur de publication."); }
-        };
-
-        // 📋 ENREGISTRER LES CONVOCATIONS (Niveau 2 minimum)
-        window.publierConvocations = async () => {
-            const texte = document.getElementById('input-convocations').value;
-            if(!texte.trim()) return alert("Veuillez insérer du texte.");
-            
-            try {
-                await setDoc(doc(db, "site_info", "convocations"), { contenu: texte });
-                alert("Les convocations sont à jour sur le site !");
-                document.getElementById('input-convocations').value = ""; // Vide le champ
-                recupererDonneesSite(); // Met à jour l'affichage sur la page
-            } catch (e) { alert("Erreur de publication."); }
-        };
-
-        // 📲 RÉCUPÉRER ET AFFICHER LE CONTENU EN DIRECT POUR LES MEMBRES CONNECTÉS
-        async function recupererDonneesSite() {
-            try {
-                const docCov = await getDoc(doc(db, "site_info", "covoiturage"));
-                if(docCov.exists()) {
-                    document.getElementById('affichage-covoiturage').innerHTML = `<p>${docCov.data().contenu}</p>`;
-                }
+                alert("Nouveau concours enregistré avec succès !");
                 
-                const docCon = await getDoc(doc(db, "site_info", "convocations"));
-                if(docCon.exists()) {
-                    document.getElementById('affichage-convocations').innerHTML = `<p>${docCon.data().contenu}</p>`;
-                }
+                // Réinitialisation des champs du formulaire
+                document.getElementById('add-concours-date').value = "";
+                document.getElementById('add-concours-lieu').value = "";
+                document.getElementById('add-concours-nom').value = "";
+                document.getElementById('add-concours-format').value = "";
+                
+                // Rafraîchir la table d'affichage
+                recupererConcoursPourMembres();
             } catch (e) {
-                console.error("Erreur lors de la récupération des données : ", e);
+                alert("Erreur lors de l'enregistrement : " + e.message);
             }
-        }
-
-        // Basculer entre formulaire de connexion et d'inscription
-        window.basculerFormulaire = (t) => {
-            document.getElementById('box-connexion').style.display = t === 'inscription' ? 'none' : 'block';
-            document.getElementById('box-inscription').style.display = t === 'inscription' ? 'block' : 'none';
         };
-    </script>
-</body>
+
+        // 📲 RÉCUPÉRER TOUS LES CONCOURS POUR LES AFFICHER AUX JOUEURS
+        async function recupererConcoursPourMembres() {
+            const tbody = document.getElementById('liste-concours-membres');
+            tbody.innerHTML = ""; // Réinitialise l'affichage
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "concours"));
+                if(querySnapshot.empty) {
+                tbody.innerHTML = <tr><td colspan="4" style="text-align:center;
+                color:#64748b;">Aucun concours officiel répertorié pour le moment.</td></tr>;
+                return;
+                }
+            querySnapshot.forEach((fiche) => {
+                const c = fiche.data();
+                const tr = document.createElement('tr');
+                tr.innerHTML = <td><span class="role-pill moderateur" style="color:#000;">${c.date}</span></td> <td><strong>${c.lieu}</strong></td> <td>${c.nom}</td> <td><span class="role-pill membre">${c.format}</span></td>;
+                tbody.appendChild(tr);
+            });
+        } catch(e) {
+            console.error("Erreur de lecture de la table concours :", e);
+        }
+    }       
+                    
+                    
 </html>
 
 
