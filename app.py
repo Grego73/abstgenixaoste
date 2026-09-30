@@ -23,6 +23,39 @@ if st.session_state.get("is_admin", False):
 
 page = st.sidebar.radio("Navigation", liste_pages)
 
+# --- VERROU DE SÉCURITÉ : PREMIÈRE CONNEXION COMPLÈTE ---
+if st.session_state.get("logged_in", False):
+    try:
+        # Récupération en temps réel du profil de l'utilisateur dans Firestore
+        check_user = db.collection("users").document(st.session_state["user_pseudo"]).get()
+        
+        if check_user.exists:
+            u_data = check_user.to_dict()
+            
+            # Vérification de la présence de champs vides parmi les informations facultatives
+            champs_a_verifier = ["nom", "prenom", "num_licence", "telephone", "club"]
+            a_des_champs_vides = any(not str(u_data.get(c, "")).strip() for c in champs_a_verifier)
+            
+            # Si c'est sa première connexion, qu'il reste des champs vides et qu'il tente de naviguer ailleurs
+            if u_data.get("premiere_connexion", True) and a_des_champs_vides and page != "🔑 Espace Membres":
+                st.sidebar.warning("⚠️ Action requise : Profil incomplet")
+                
+                # Message d'accueil bloquant bienveillant
+                st.warning("### ⚙️ Finalisation de votre inscription requise")
+                st.write(
+                    "Pour accéder aux différentes pages du site de l'Amicale Boule, "
+                    "veuillez valider ou compléter votre profil une première fois."
+                )
+                st.info("👉 Rendez-vous dès maintenant sur l'onglet **🔑 Espace Membres** dans le menu de gauche.")
+                
+                # Interruption immédiate du chargement du reste de la page (Accueil, Contact, etc.)
+                st.stop()
+                
+    except Exception as e:
+        # Sécurité en cas de coupure temporaire avec la base de données Firestore
+        st.sidebar.error("⏳ Erreur de synchronisation avec le profil.")
+
+
 # --- PAGE ACCUEIL ---
 if page == "Accueil":
     # On donne des proportions : 1.5 de vide à gauche, 5 pour le texte au centre, 1.5 de vide à droite
