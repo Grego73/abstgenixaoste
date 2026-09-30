@@ -9,6 +9,12 @@ STATUT_CLUB = "Association déclarée (fondée en décembre 2004)"
 ADRESSE_SIEGE = "Café Gojon, Rue des Juifs, 73240 Saint-Genix-les-Villages"
 BOULODROMES = "Jeux de La Glière (Saint-Genix) & Terrains d'Aoste"
 URL_FACEBOOK = "https://www.facebook.com/p/Amicale-Boule-St-Genix-Aoste-61570273360707/"
+# Coordonnées géographiques pour la carte d'accès (Saint-Genix et Aoste)
+DONNEES_CARTE = {
+    "latitude": [45.6012, 45.5872],
+    "longitude": [5.6328, 5.6083],
+    "Nom du terrain": ["Jeux de La Glière (Saint-Genix)", "Terrains de boules d'Aoste"]
+}
 
 # URL de la boule lyonnaise strieuse demandée
 URL_BOULE_IMAGE = "https://taboulot.fr"
