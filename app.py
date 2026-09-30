@@ -39,13 +39,21 @@ if page == "Accueil":
                 "la pratique et le rayonnement du sport-boules (Boule Lyonnaise) sur les territoires de "
                 "Saint-Genix-les-Villages (Savoie) et d'Aoste (Isère)."
             )
+            
+            # --- AJOUT SECTION CENTENAIRE ---
+            st.markdown("### 📜 Un Club Centenaire au Riche Passé")
+            st.write(
+                "L'événement marquant de notre histoire récente reste la célébration de notre **centenaire**, "
+                "orchestrée avec ferveur en **juillet 2022**. C’est à cette occasion mémorable que notre association "
+                "locale a soufflé ses **100 bougies**, entourée de ses membres actifs, de ses fidèles bénévoles et de ses partenaires."
+            )
+            st.write("Ce cap historique a mis en lumière un palmarès exceptionnel qui fait la fierté de notre territoire :")
+            st.markdown("- 🇨🇵 Une **quarantaine de participations aux championnats de France**.")
+            st.markdown("- 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")
+            # ---------------------------------
+            
             st.markdown(f"🔗 *Suivez l'actualité en direct sur notre [Page Facebook Officielle]({URL_FACEBOOK}).*")
-        
-        # --- SECTION PLAN D'ACCÈS INTERACTIF ---
-        st.markdown(" ")
-        st.markdown("### 🗺️ Plan d'accès aux terrains")
-        st.write("Cliquez pour lancer votre application ou copiez les coordonnées pour votre GPS :")
-        
+                
         # Carte centrée et bien proportionnée
         st.map(pd.DataFrame(DONNEES_CARTE), latitude="latitude", longitude="longitude", size=40, height=280)
 
