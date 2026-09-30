@@ -18,77 +18,66 @@ page = st.sidebar.radio("Navigation", ["Accueil", "La Vie du Club & Concours", "
 
 # --- PAGE ACCUEIL ---
 if page == "Accueil":
-    # On crée 3 colonnes avec des proportions : 1 part de vide à gauche, 5 parts de contenu au centre, 1 part de vide à droite
-    col_marge_gauche, col_contenu, col_marge_droite = st.columns([1, 5, 1])
+    # On donne des proportions : 1.5 de vide à gauche, 5 pour le texte au centre, 1.5 de vide à droite
+    col_marge_gauche, col_contenu, col_marge_droite = st.columns([1.5, 5, 1.5])
     
     with col_contenu:
+        # Un titre propre sur une seule ligne ou bien proportionné
         st.title(f"🏆 {NOM_CLUB}")
-        st.subheader(STATUT_CLUB)
+        st.write(f"*{STATUT_CLUB}*")
         st.markdown("---")
         
-        st.markdown(f"### 📍 Notre Implantation")
-        st.write(f"**Siège social :** {ADRESSE_SIEGE}")
-        st.write(f"**Lieux d'entraînement et compétitions :** {BOULODROMES}")
-        
-        st.markdown("### 🎯 Notre Mission")
-        st.info(
-            "Fondée dans un esprit de franche camaraderie, notre amicale s'attache à développer "
-            "la pratique et le rayonnement du sport-boules (Boule Lyonnaise) sur les territoires de "
-            "Saint-Genix-les-Villages (Savoie) et d'Aoste (Isère)."
-        )
-        st.write(f"🔗 Suivez l'actualité en direct sur notre [Page Facebook Officielle]({URL_FACEBOOK}).")
+        # On regroupe les informations dans un conteneur pour un rendu plus net
+        with st.container(border=True):
+            st.markdown(f"### 📍 Notre Implantation")
+            st.write(f"**Siège social :** {ADRESSE_SIEGE}")
+            st.write(f"**Lieux d'entraînement et compétitions :** {BOULODROMES}")
+            
+            st.markdown("### 🎯 Notre Mission")
+            st.write(
+                "Fondée dans un esprit de franche camaraderie, notre amicale s'attache à développer "
+                "la pratique et le rayonnement du sport-boules (Boule Lyonnaise) sur les territoires de "
+                "Saint-Genix-les-Villages (Savoie) et d'Aoste (Isère)."
+            )
+            st.markdown(f"🔗 *Suivez l'actualité en direct sur notre [Page Facebook Officielle]({URL_FACEBOOK}).*")
         
         # --- SECTION PLAN D'ACCÈS INTERACTIF ---
-        st.markdown("---")
+        st.markdown(" ")
         st.markdown("### 🗺️ Plan d'accès aux terrains")
         st.write("Cliquez pour lancer votre application ou copiez les coordonnées pour votre GPS :")
         
-        # Carte bridée à 250 pixels de hauteur pour éviter l'effet "immense"
-        st.map(pd.DataFrame(DONNEES_CARTE), latitude="latitude", longitude="longitude", size=40, height=250)
+        # Carte centrée et bien proportionnée
+        st.map(pd.DataFrame(DONNEES_CARTE), latitude="latitude", longitude="longitude", size=40, height=280)
 
-        st.markdown(" ") # Petit espace vertical
+        st.markdown(" ") 
         st.markdown("#### 🚗 Configuration du GPS :")
         
         # --- ZONE SAINT-GENIX (Jeux de la Glière) ---
         st.markdown("##### 📍 Jeux de La Glière (Saint-Genix)")
         coords_sg = f"{DONNEES_CARTE['latitude'][0]}, {DONNEES_CARTE['longitude'][0]}"
+        
         col_sg1, col_sg2, col_sg3 = st.columns([1, 1, 1.5])
         with col_sg1:
-            st.link_button(
-                "🗺️ Google Maps", 
-                f"https://google.com{coords_sg.replace(' ', '')}&dir_action=navigate",
-                use_container_width=True
-            )
+            st.link_button("🗺️ Google Maps", f"https://google.com{coords_sg.replace(' ', '')}&dir_action=navigate", use_container_width=True)
         with col_sg2:
-            st.link_button(
-                "🚙 Waze", 
-                 f"https://waze.com{coords_sg.replace(' ', '')}&navigate=yes",
-                use_container_width=True
-            )
+            st.link_button("🚙 Waze", f"https://waze.com{coords_sg.replace(' ', '')}&navigate=yes", use_container_width=True)
         with col_sg3:
-            st.text_input("Coordonnées GPS", value=coords_sg, key="gps_sg", label_visibility="collapsed")
+            st.text_input("Coordonnées GPS 1", value=coords_sg, key="gps_sg", label_visibility="collapsed")
 
-        st.markdown(" ") # Petit espace vertical
+        st.markdown(" ") 
 
         # --- ZONE AOSTE (Terrains d'Aoste) ---
         st.markdown("##### 📍 Terrains d'Aoste")
         coords_aos = f"{DONNEES_CARTE['latitude'][1]}, {DONNEES_CARTE['longitude'][1]}"
+        
         col_aos1, col_aos2, col_aos3 = st.columns([1, 1, 1.5])
         with col_aos1:
-            st.link_button(
-                "🗺️ Google Maps", 
-                f"https://google.com{coords_aos.replace(' ', '')}&dir_action=navigate",
-                use_container_width=True
-            )
+            st.link_button("🗺️ Google Maps", f"https://google.com{coords_aos.replace(' ', '')}&dir_action=navigate", use_container_width=True)
         with col_aos2:
-            st.link_button(
-                "🚙 Waze", 
-                f"https://waze.com{coords_aos.replace(' ', '')}&navigate=yes",
-                use_container_width=True
-            )
+            st.link_button("🚙 Waze", f"https://waze.com{coords_aos.replace(' ', '')}&navigate=yes", use_container_width=True)
         with col_aos3:
-            st.text_input("Coordonnées GPS", value=coords_aos, key="gps_aos", label_visibility="collapsed")
-            
+            st.text_input("Coordonnées GPS 2", value=coords_aos, key="gps_aos", label_visibility="collapsed")
+          
 # --- PAGE ACTUALITÉS ---
 elif page == "La Vie du Club & Concours":
     st.title("🏆 Résultats & Compétitions")
