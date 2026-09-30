@@ -78,10 +78,40 @@ def afficher_espace_membres(db):
             opt_licence = st.text_input("N° de Licence (Facultatif)")
             opt_telephone = st.text_input("N° de Téléphone (Facultatif)")
             
+            # --- AJOUT DYNAMIQUE DE LA LISTE DES CLUBS ---
+            st.markdown("##### 🏢 Rattachement Club / Société")
+            liste_clubs = ["Amicale Boule Saint-Genix Aoste"]  # Club par défaut obligatoire
+            
+            try:
+                # On récupère tous les utilisateurs pour extraire la liste des clubs existants
+                utilisateurs = db.collection("users").stream()
+                for u in utilisateurs:
+                    u_data = u.to_dict()
+                    club_existant = u_data.get("club")
+                    if club_existant and club_existant not in liste_clubs:
+                        liste_clubs.append(club_existant)
+            except Exception:
+                pass  # Si la table est vide ou inaccessible au premier démarrage
+                
+            liste_clubs.sort()
+            liste_clubs.append("➕ Autre (Ajouter un nouveau club...)")
+            
+            # Affichage de la liste déroulante
+            club_selectionne = st.selectbox("Sélectionnez votre Club ou Société", liste_clubs)
+            
+            # Si l'utilisateur choisit "Autre", on affiche un champ de saisie de texte libre
+            if club_selectionne == "➕ Autre (Ajouter un nouveau club...)":
+                opt_club = st.text_input("Saisissez le nom de votre Club / Société")
+            else:
+                opt_club = club_selectionne
+            # ---------------------------------------------
+            
             if st.button("Créer mon compte"):
                 if reg_pseudo and reg_email and reg_password:
                     if db.collection("users").document(reg_pseudo).get().exists:
                         st.error("Pseudo déjà pris.")
+                    elif club_selectionne == "➕ Autre (Ajouter un nouveau club...)" and not opt_club.strip():
+                        st.error("Veuillez renseigner le nom de votre nouveau club.")
                     else:
                         code_valid = str(random.randint(100000, 999999))
                         st.session_state["verification_code"] = code_valid
@@ -96,7 +126,8 @@ def afficher_espace_membres(db):
                             "prenom": opt_prenom,
                             "num_licence": opt_licence,
                             "telephone": opt_telephone,
-                            "role": "membre"  # Rôle par défaut
+                            "club": opt_club,  # Enregistrement du club sélectionné ou saisi
+                            "role": "membre"
                         })
                         st.rerun()
                 else:
