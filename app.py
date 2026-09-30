@@ -54,8 +54,9 @@ if page == "Accueil":
                 "orchestrée avec ferveur en **juillet 2022**. C’est à cette occasion mémorable que notre association "
                 "locale a soufflé ses **100 bougies**, entourée de ses membres actifs, de ses fidèles bénévoles et de ses partenaires."
             )
+            drapeau_france = "\U0001F1EB\U0001F1F7"
             st.write("Ce cap historique a mis en lumière un palmarès exceptionnel qui fait la fierté de notre territoire :")
-            st.markdown("- 🇫🇷 Une **quarantaine de participations aux championnats de France**.")
+            st.markdown("- f"{drapeau_france} Une **quarantaine de participations aux championnats de France**.")
             st.markdown("- 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")
             # ---------------------------------
             
