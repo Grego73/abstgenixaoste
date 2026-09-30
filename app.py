@@ -71,7 +71,7 @@ if page == "Accueil":
         with col_sg2:
             st.link_button(
                 "🚙 Waze", 
-                f"https://waze.com{lat_sg},{lon_sg}&navigate=yes", 
+                f"https://waze.com/fr/live-map/directions?to=ll.{lat_sg},{lon_sg}", 
                 use_container_width=True
             )
         with col_sg3:
@@ -98,7 +98,7 @@ if page == "Accueil":
         with col_aos2:
             st.link_button(
                 "🚙 Waze", 
-                f"https://waze.com{lat_aos},{lon_aos}&navigate=yes", 
+                f"https://waze.com/fr/live-map/directions?to=ll.{lat_aos},{lon_aos}&navigate=yes", 
                 use_container_width=True
             )
         with col_aos3:
