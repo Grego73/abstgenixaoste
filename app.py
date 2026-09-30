@@ -1,9 +1,9 @@
 import streamlit as st
-
+import pandas as pd
 # Imports depuis le fichier de configuration centralisé
 from modules.utils import (
     initialiser_firebase, verifier_session, NOM_CLUB, STATUT_CLUB,
-    ADRESSE_SIEGE, BOULODROMES, URL_FACEBOOK, URL_BOULE_IMAGE
+    ADRESSE_SIEGE, BOULODROMES, URL_FACEBOOK, URL_BOULE_IMAGE, DONNEES_CARTE
 )
 from modules.auth import afficher_espace_membres
 
@@ -39,6 +39,14 @@ if page == "Accueil":
     with col_photo:
         st.image(URL_BOULE_IMAGE, caption="La Boule Lyonnaise strieuse", use_container_width=True)
 
+    # --- SECTION PLAN D'ACCÈS INTERACTIF ---
+    st.markdown("---")
+    st.markdown("### 🗺️ Plan d'accès aux terrains")
+    st.write("Retrouvez ci-dessous l'emplacement exact de nos terrains pour vos matchs de poule ou vos concours :")
+    
+    # Création de la carte à partir des variables globales
+    df_carte = pd.DataFrame(DONNEES_CARTE)
+    st.map(df_carte, latitude="latitude", longitude="longitude", size=40)
 # --- PAGE ACTUALITÉS ---
 elif page == "La Vie du Club & Concours":
     st.title("🏆 Résultats & Compétitions")
