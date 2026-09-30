@@ -30,7 +30,7 @@ def afficher_accueil():
             )
             st.write("Ce cap historique a mis en lumière un palmarès exceptionnel qui fait la fierté de notre territoire :")
             # 1. Définition du drapeau (Séquence Unicode robuste)
-            drapeau_france = "\U0001F1EB\U0001F1F7"
+            drapeau_france = r"\U0001F1EB\U0001F1F7"
             
             # 2. Affichage en Markdown avec la f-string
             st.markdown(f"- {drapeau_france} Une **quarantaine de participations aux championnats de France**.")            st.markdown("- 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")
