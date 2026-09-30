@@ -3,19 +3,18 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import hashlib
 
-# 1. VARIABLES UTILES POUR TOUT LE SITE
-NOM_CLUB = "Union Sportive Boule Lyonnaise"
-ADRESSE_BOULODROME = "123 Rue du Boulodrome, 73240 Saint-Genix-les-Villages"
-TARIF_ADULTE = "60 € / an"
-HORAIRES_ENTRAINEMENTS = [
-    "Mardi : 17h00 - 20h00",
-    "Samedi : 09h00 - 12h00"
-]
+# 1. VARIABLES GLOBALES DE L'AMICALE BOULE SAINT-GENIX AOSTE
+NOM_CLUB = "Amicale Boule Saint-Genix Aoste"
+STATUT_CLUB = "Association déclarée (fondée en décembre 2004)"
+ADRESSE_SIEGE = "Café Gojon, Rue des Juifs, 73240 Saint-Genix-les-Villages"
+BOULODROMES = "Jeux de La Glière (Saint-Genix) & Terrains d'Aoste"
+URL_FACEBOOK = "https://www.facebook.com/p/Amicale-Boule-St-Genix-Aoste-61570273360707/"
+
+# URL de la boule lyonnaise strieuse demandée
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
 # 2. INITIALISATION UNIQUE DE FIREBASE
 def initialiser_firebase():
-    """Initialise la connexion Firebase et retourne l'instance Firestore."""
     if not firebase_admin._apps:
         try:
             fb_secrets = dict(st.secrets["firebase"])
@@ -28,13 +27,11 @@ def initialiser_firebase():
             st.stop()
     return firestore.client()
 
-# 3. FONCTIONS REUTILISABLES PARTAGEES
+# 3. FONCTIONS REUTILISABLES
 def hash_password(password):
-    """Sécurise un mot de passe avec l'algorithme SHA-256."""
     return hashlib.sha256(password.encode()).hexdigest()
 
 def verifier_session():
-    """S'assure que les variables d'état Streamlit existent au démarrage."""
     if "logged_in" not in st.session_state:
         st.session_state["logged_in"] = False
     if "user_pseudo" not in st.session_state:
