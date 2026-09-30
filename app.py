@@ -224,7 +224,7 @@ elif page == "🛡️ Panneau Administration":
             if liste_users:
                 df_users = pd.DataFrame(liste_users)
                 # On réorganise l'affichage pour le gestionnaire
-                colonnes_visibles = ["pseudo", "nom", "prenom", "email", "num_licence", "telephone", "role", "email_verifie"]
+                colonnes_visibles = ["pseudo", "nom", "prenom", "email", "num_licence", "club", "telephone", "role", "email_verifie"]
                 # On filtre uniquement sur les colonnes existantes dans le dataframe
                 colonnes_visibles = [c for c in colonnes_visibles if c in df_users.columns]
                 
