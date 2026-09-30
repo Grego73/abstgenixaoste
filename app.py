@@ -65,7 +65,7 @@ if page == "Accueil":
             # Lien corrigé avec le slash / obligatoire après le .com/maps/dir/
             st.link_button(
                 "🗺️ Google Maps", 
-                f"https://google.com{lat_sg},{lon_sg}&dir_action=navigate", 
+                f"https://google.com/{lat_sg},{lon_sg}&dir_action=navigate", 
                 use_container_width=True
             )
         with col_sg2:
