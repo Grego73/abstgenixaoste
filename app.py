@@ -5,12 +5,23 @@ from firebase_admin import credentials, firestore
 # Initialisation sécurisée de Firebase
 if not firebase_admin._apps:
     try:
-        # On récupère les secrets Streamlit
+        # 1. Récupération des secrets
         fb_secrets = dict(st.secrets["firebase"])
         
-        # Astuce : On nettoie la clé privée pour s'assurer que les sauts de ligne sont bien lus
+        # 2. Nettoyage chirurgical de la clé privée
         if "private_key" in fb_secrets:
-            fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n")
+            pk = fb_secrets["private_key"]
+            # On enlève les balises temporairement pour nettoyer le cœur de la clé
+            pk_clean = pk.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "")
+            # On supprime TOUS les espaces, retours à la ligne et anti-slash n cachés
+            pk_clean = pk_clean.replace("\n", "").replace("\\n", "").replace(" ", "").strip()
+            
+            # On découpe proprement le cœur de la clé par blocs exacts de 64 caractères
+            lines = [pk_clean[i:i+64] for i in range(0, len(pk_clean), 64)]
+            
+            # On remet l'en-tête et le pied de page officiels
+            pk_final = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lines) + "\n-----END PRIVATE KEY-----\n"
+            fb_secrets["private_key"] = pk_final
             
         cred = credentials.Certificate(fb_secrets)
         firebase_admin.initialize_app(cred)
@@ -20,6 +31,7 @@ if not firebase_admin._apps:
 
 # Connexion à la base de données Firestore
 db = firestore.client()
+
 
 # Configuration de la page internet
 st.set_page_config(page_title="Club Boule Lyonnaise", page_icon="🥎", layout="wide")
