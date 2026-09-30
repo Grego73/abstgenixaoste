@@ -18,12 +18,14 @@ page = st.sidebar.radio("Navigation", ["Accueil", "La Vie du Club & Concours", "
 
 # --- PAGE ACCUEIL ---
 if page == "Accueil":
-    st.title(f"🏆 {NOM_CLUB}")
-    st.subheader(STATUT_CLUB)
-    st.markdown("---")
+    # On crée 3 colonnes pour forcer le contenu à rester bien centré au milieu
+    col_gauche, col_centre, col_droite = st.columns([1, 2, 1])
     
-    col_texte, col_photo = st.columns(2)
-    with col_texte:
+    with col_centre:
+        st.title(f"🏆 {NOM_CLUB}")
+        st.subheader(STATUT_CLUB)
+        st.markdown("---")
+        
         st.markdown(f"### 📍 Notre Implantation")
         st.write(f"**Siège social :** {ADRESSE_SIEGE}")
         st.write(f"**Lieux d'entraînement et compétitions :** {BOULODROMES}")
@@ -36,58 +38,55 @@ if page == "Accueil":
         )
         st.write(f"🔗 Suivez l'actualité en direct sur notre [Page Facebook Officielle]({URL_FACEBOOK}).")
         
-    with col_photo:
-        st.image(URL_BOULE_IMAGE, caption="La Boule Lyonnaise strieuse", use_container_width=True)
+        # --- SECTION PLAN D'ACCÈS INTERACTIF ---
+        st.markdown("---")
+        st.markdown("### 🗺️ Plan d'accès aux terrains")
+        st.write("Cliquez pour lancer votre application ou copiez les coordonnées pour votre GPS :")
+        
+        # On réduit la taille de la carte en l'imbriquant dans une sous-colonne plus petite
+        # height=300 permet de réduire la hauteur de la carte de moitié
+        st.map(pd.DataFrame(DONNEES_CARTE), latitude="latitude", longitude="longitude", size=40, height=300)
 
-    # --- SECTION PLAN D'ACCÈS INTERACTIF ---
-    st.markdown("---")
-    st.markdown("### 🗺️ Plan d'accès aux terrains")
-    st.write("Retrouvez l'emplacement de nos terrains. Cliquez pour lancer votre application ou copiez les coordonnées pour un autre GPS :")
-    
-    # Affichage de la carte interactive
-    df_carte = pd.DataFrame(DONNEES_CARTE)
-    st.map(df_carte, latitude="latitude", longitude="longitude", size=40)
+        st.markdown(" ") # Petit espace vertical
+        st.markdown("#### 🚗 Configuration du GPS :")
+        
+        # --- ZONE SAINT-GENIX (Jeux de la Glière) ---
+        st.markdown("##### 📍 Jeux de La Glière (Saint-Genix)")
+        col_sg1, col_sg2, col_sg3 = st.columns([1, 1, 1.5])
+        with col_sg1:
+            st.link_button(
+                "🗺️ Google Maps", 
+                "https://google.com",
+                use_container_width=True
+            )
+        with col_sg2:
+            st.link_button(
+                "🚙 Waze", 
+                "https://waze.com",
+                use_container_width=True
+            )
+        with col_sg3:
+            st.text_input("Coordonnées GPS", value="45.6012, 5.6328", key="gps_sg", label_visibility="collapsed")
 
-    st.markdown("#### 🚗 Lancer la navigation ou copier les coordonnées :")
-    
-    # --- ZONE SAINT-GENIX (Jeux de la Glière) ---
-    st.markdown("##### 📍 Jeux de La Glière (Saint-Genix)")
-    col_sg1, col_sg2, col_sg3 = st.columns([1, 1, 1])
-    with col_sg1:
-        st.link_button(
-            "🗺️ Google Maps", 
-            "https://google.com",
-            use_container_width=True
-        )
-    with col_sg2:
-        st.link_button(
-            "🚙 Waze", 
-            "https://waze.com",
-            use_container_width=True
-        )
-    with col_sg3:
-        # Permet de copier facilement les coordonnées brutes pour n'importe quel autre outil
-        st.text_input("Autre GPS (Coordonnées à copier)", value="45.6012, 5.6328", key="gps_sg", label_visibility="collapsed")
+        st.markdown(" ") # Petit espace vertical
 
-    st.markdown(" ") # Petit espace vertical
-
-    # --- ZONE AOSTE (Terrains d'Aoste) ---
-    st.markdown("##### 📍 Terrains d'Aoste")
-    col_aos1, col_aos2, col_aos3 = st.columns([1, 1, 1])
-    with col_aos1:
-        st.link_button(
-            "🗺️ Google Maps", 
-            "https://google.com",
-            use_container_width=True
-        )
-    with col_aos2:
-        st.link_button(
-            "🚙 Waze", 
-            "https://waze.com",
-            use_container_width=True
-        )
-    with col_aos3:
-        st.text_input("Autre GPS (Coordonnées à copier)", value="45.5872, 5.6083", key="gps_aos", label_visibility="collapsed")
+        # --- ZONE AOSTE (Terrains d'Aoste) ---
+        st.markdown("##### 📍 Terrains d'Aoste")
+        col_aos1, col_aos2, col_aos3 = st.columns([1, 1, 1.5])
+        with col_aos1:
+            st.link_button(
+                "🗺️ Google Maps", 
+                "https://google.com",
+                use_container_width=True
+            )
+        with col_aos2:
+            st.link_button(
+                "🚙 Waze", 
+                "https://waze.com",
+                use_container_width=True
+            )
+        with col_aos3:
+            st.text_input("Coordonnées GPS", value="45.5872, 5.6083", key="gps_aos", label_visibility="collapsed")
 
 # --- PAGE ACTUALITÉS ---
 elif page == "La Vie du Club & Concours":
