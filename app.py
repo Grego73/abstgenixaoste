@@ -42,46 +42,52 @@ if page == "Accueil":
     # --- SECTION PLAN D'ACCÈS INTERACTIF ---
     st.markdown("---")
     st.markdown("### 🗺️ Plan d'accès aux terrains")
-    st.write("Retrouvez l'emplacement de nos terrains. Cliquez sur les boutons ci-dessous pour lancer l'itinéraire sur votre GPS :")
+    st.write("Retrouvez l'emplacement de nos terrains. Cliquez pour lancer votre application ou copiez les coordonnées pour un autre GPS :")
     
     # Affichage de la carte interactive
     df_carte = pd.DataFrame(DONNEES_CARTE)
     st.map(df_carte, latitude="latitude", longitude="longitude", size=40)
 
-    # Ajout des boutons de redirection GPS vers Google Maps ou Waze
-    st.markdown("#### 🚗 Lancer la navigation vers vos smartphones :")
+    st.markdown("#### 🚗 Lancer la navigation ou copier les coordonnées :")
     
-    # Ligne pour Saint-Genix (Jeux de la Glière)
-    col_sg1, col_sg2 = st.columns([1, 3])
+    # --- ZONE SAINT-GENIX (Jeux de la Glière) ---
+    st.markdown("##### 📍 Jeux de La Glière (Saint-Genix)")
+    col_sg1, col_sg2, col_sg3 = st.columns([1, 1, 1])
     with col_sg1:
-        st.write("**📍 Jeux de La Glière :**")
+        st.link_button(
+            "🗺️ Google Maps", 
+            "https://google.com",
+            use_container_width=True
+        )
     with col_sg2:
-        # Liens profonds pour Saint-Genix (Latitude: 45.6012, Longitude: 5.6328)
         st.link_button(
-            "🗺️ Ouvrir Google Maps", 
-            "https://google.com"
+            "🚙 Waze", 
+            "https://waze.com",
+            use_container_width=True
         )
-        st.link_button(
-            "🚙 Ouvrir Waze", 
-            "https://waze.com"
-        )
+    with col_sg3:
+        # Permet de copier facilement les coordonnées brutes pour n'importe quel autre outil
+        st.text_input("Autre GPS (Coordonnées à copier)", value="45.6012, 5.6328", key="gps_sg", label_visibility="collapsed")
 
     st.markdown(" ") # Petit espace vertical
 
-    # Ligne pour Aoste (Terrains d'Aoste)
-    col_aos1, col_aos2 = st.columns([1, 3])
+    # --- ZONE AOSTE (Terrains d'Aoste) ---
+    st.markdown("##### 📍 Terrains d'Aoste")
+    col_aos1, col_aos2, col_aos3 = st.columns([1, 1, 1])
     with col_aos1:
-        st.write("**📍 Terrains d'Aoste :**")
+        st.link_button(
+            "🗺️ Google Maps", 
+            "https://google.com",
+            use_container_width=True
+        )
     with col_aos2:
-        # Liens profonds pour Aoste (Latitude: 45.5872, Longitude: 5.6083)
         st.link_button(
-            "🗺️ Ouvrir Google Maps", 
-            "https://google.com"
+            "🚙 Waze", 
+            "https://waze.com",
+            use_container_width=True
         )
-        st.link_button(
-            "🚙 Ouvrir Waze", 
-            "https://waze.com"
-        )
+    with col_aos3:
+        st.text_input("Autre GPS (Coordonnées à copier)", value="45.5872, 5.6083", key="gps_aos", label_visibility="collapsed")
 
 # --- PAGE ACTUALITÉS ---
 elif page == "La Vie du Club & Concours":
