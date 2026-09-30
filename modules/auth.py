@@ -93,6 +93,13 @@ def afficher_espace_membres(db):
                 st.session_state["logged_in"] = False
                 st.session_state["user_pseudo"] = ""
                 st.session_state["is_admin"] = False
+                
+                # NETTOYAGE : Supprime les infos de profil de la session pour le prochain utilisateur
+                variables_profil = ["premiere_connexion", "user_club", "user_nom", "user_prenom", "user_licence", "user_telephone"]
+                for var in variables_profil:
+                    if var in st.session_state:
+                        del st.session_state[var]
+                        
                 st.rerun()
                 
         with tab_mon_profil:
