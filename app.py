@@ -34,22 +34,37 @@ db = firestore.client()
 
 
 # Configuration de la page internet
-st.set_page_config(page_title="Club Boule Lyonnaise", page_icon="🥎", layout="wide")
+st.set_page_config(page_title="Club Boule Lyonnaise", page_icon="🏆", layout="wide")
+
 
 # Menu de navigation de la barre latérale
 page = st.sidebar.radio("Navigation", ["Accueil", "Infos Pratiques", "Actualités & Concours", "Contact"])
 
 # --- PAGE 1 : ACCUEIL ---
+# --- PAGE 1 : ACCUEIL ---
 if page == "Accueil":
-    st.title("🥎 Bienvenue au Club de Boule Lyonnaise")
+    st.title("Bienvenue au Club de Boule Lyonnaise")
     st.markdown("---")
-    st.write("Suivez toute la vie de notre club, nos entraînements et nos compétitions officielles ici !")
     
-    st.info(
-        "Bienvenue sur le site officiel de notre club de Sport-Boules ! "
-        "Passionnés, compétiteurs ou simples amateurs, notre club vous accueille "
-        "tout au long de l'année dans une ambiance conviviale."
-    )
+    # Création de deux colonnes : une pour le texte, une pour votre photo
+    col_texte, col_photo = st.columns([2, 1])
+    
+    with col_texte:
+        st.write("Suivez toute la vie de notre club, nos entraînements et nos compétitions officielles ici !")
+        st.info(
+            "Bienvenue sur le site officiel de notre club de Sport-Boules ! "
+            "Passionnés, compétiteurs ou simples amateurs, notre club vous accueille "
+            "tout au long de l'année dans une ambiance conviviale et dynamique."
+        )
+        st.write("👉 Utilisez le menu à gauche pour découvrir nos horaires et nos prochains concours.")
+        
+    with col_photo:
+        # Intégration de votre photo de boule lyonnaise
+        st.image(
+            "https://www.taboulot.fr/wp-content/uploads/2022/05/taboulot-lyonnaise-BDJ-A11-1.jpg", 
+            caption="La Boule Lyonnaise (Sport-Boules)",
+            use_container_width=True
+        )
 
 # --- PAGE 2 : INFOS PRATIQUES ---
 elif page == "Infos Pratiques":
