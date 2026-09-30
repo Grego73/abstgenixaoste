@@ -2,135 +2,62 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+# IMPORT DE NOTRE MODULE MAISON
+from modules.auth import afficher_espace_membres
+
 # Initialisation sécurisée de Firebase
 if not firebase_admin._apps:
     try:
-        # 1. Récupération des secrets
         fb_secrets = dict(st.secrets["firebase"])
-        
-        # 2. Nettoyage chirurgical de la clé privée
         if "private_key" in fb_secrets:
-            pk = fb_secrets["private_key"]
-            # On enlève les balises temporairement pour nettoyer le cœur de la clé
-            pk_clean = pk.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "")
-            # On supprime TOUS les espaces, retours à la ligne et anti-slash n cachés
-            pk_clean = pk_clean.replace("\n", "").replace("\\n", "").replace(" ", "").strip()
-            
-            # On découpe proprement le cœur de la clé par blocs exacts de 64 caractères
-            lines = [pk_clean[i:i+64] for i in range(0, len(pk_clean), 64)]
-            
-            # On remet l'en-tête et le pied de page officiels
-            pk_final = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lines) + "\n-----END PRIVATE KEY-----\n"
-            fb_secrets["private_key"] = pk_final
-            
+            fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n")
         cred = credentials.Certificate(fb_secrets)
         firebase_admin.initialize_app(cred)
     except Exception as e:
         st.error(f"Erreur de configuration Firebase : {e}")
         st.stop()
 
-# Connexion à la base de données Firestore
 db = firestore.client()
 
+# Initialisation des variables de session
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+if "user_pseudo" not in st.session_state:
+    st.session_state["user_pseudo"] = ""
+if "verifying_email" not in st.session_state:
+    st.session_state["verifying_email"] = None
 
-# Configuration de la page internet
+# Configuration de la page
 st.set_page_config(page_title="Club Boule Lyonnaise", page_icon="🏆", layout="wide")
 
+# Menu de navigation
+page = st.sidebar.radio("Navigation", ["Accueil", "Infos Pratiques", "Actualités & Concours", "Contact", "🔑 Espace Membres"])
 
-# Menu de navigation de la barre latérale
-page = st.sidebar.radio("Navigation", ["Accueil", "Infos Pratiques", "Actualités & Concours", "Contact"])
-
-# --- PAGE 1 : ACCUEIL ---
-# --- PAGE 1 : ACCUEIL ---
+# --- PAGE ACCUEIL ---
 if page == "Accueil":
     st.title("Bienvenue au Club de Boule Lyonnaise")
     st.markdown("---")
-    
-    # Création de deux colonnes : une pour le texte, une pour votre photo
-    col_texte, col_photo = st.columns([2, 1])
-    
+    col_texte, col_photo = st.columns(2)
     with col_texte:
         st.write("Suivez toute la vie de notre club, nos entraînements et nos compétitions officielles ici !")
-        st.info(
-            "Bienvenue sur le site officiel de notre club de Sport-Boules ! "
-            "Passionnés, compétiteurs ou simples amateurs, notre club vous accueille "
-            "tout au long de l'année dans une ambiance conviviale et dynamique."
-        )
-        st.write("👉 Utilisez le menu à gauche pour découvrir nos horaires et nos prochains concours.")
-        
+        st.info("Bienvenue sur le site officiel de notre club de Sport-Boules ! Passionnés ou simples amateurs, notre club vous accueille dans une ambiance conviviale.")
     with col_photo:
-        # Intégration de votre photo de boule lyonnaise
-        st.image(
-            "https://www.taboulot.fr/wp-content/uploads/2022/05/taboulot-lyonnaise-BDJ-A11-1.jpg", 
-            caption="La Boule Lyonnaise (Sport-Boules)",
-            use_container_width=True
-        )
+        st.image("https://taboulot.fr", caption="La Boule Lyonnaise", use_container_width=True)
 
-# --- PAGE 2 : INFOS PRATIQUES ---
+# --- PAGE INFOS PRATIQUES ---
 elif page == "Infos Pratiques":
     st.title("📅 Infos Pratiques")
-    st.markdown("---")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("⏰ Horaires d'entraînements")
-        st.write("- **Mardi** : 17h00 - 20h00")
-        st.write("- **Samedi** : 09h00 - 12h00")
-    with col2:
-        st.subheader("💳 Tarifs Licences")
-        st.write("- **Adultes** : 60 € / an")
-        st.write("- **Jeunes (-18 ans)** : Gratuit")
+    st.write("**Horaires :** Mardi 17h-20h / Samedi 9h-12h")
 
-# --- PAGE 3 : ACTUALITÉS & CONCOURS (Lecture depuis Firebase) ---
+# --- PAGE ACTUALITÉS ---
 elif page == "Actualités & Concours":
     st.title("🏆 Actualités & Prochains Concours")
-    st.markdown("---")
-    
-    try:
-        # Lecture des concours dans la collection "concours" de Firebase
-        concours_ref = db.collection("concours")
-        docs = concours_ref.stream()
-        
-        events_found = False
-        for doc in docs:
-            events_found = True
-            data = doc.to_dict()
-            st.subheader(f"🔹 {data.get('nom', 'Concours sans nom')}")
-            st.caption(f"Date : {data.get('date', 'Non définie')} | Lieu : {data.get('lieu', 'Non défini')}")
-            st.write(data.get('description', 'Aucune description disponible.'))
-            st.divider()
-            
-        if not events_found:
-            st.info("Aucun concours planifié pour le moment. Revenez bientôt !")
-            
-    except Exception as e:
-        st.error("Impossible de charger les concours.")
-        st.caption(f"Détail technique : {e}")
 
-# --- PAGE 4 : CONTACT (Écriture vers Firebase) ---
+# --- PAGE CONTACT ---
 elif page == "Contact":
     st.title("✉️ Nous Contacter")
-    st.markdown("---")
-    
-    with st.form("contact_form", clear_on_submit=True):
-        nom = st.text_input("Votre Nom et Prénom")
-        email = st.text_input("Votre Adresse E-mail")
-        message = st.text_area("Votre Message")
-        submit = st.form_submit_button("Envoyer le message")
-        
-        if submit:
-            if nom and email and message:
-                try:
-                    # Envoi des données dans la collection "messages" de Firebase
-                    db.collection("messages").add({
-                        "nom": nom,
-                        "email": email,
-                        "message": message,
-                        "statut": "Non lu"
-                    })
-                    st.success("Votre message a bien été envoyé au secrétariat du club !")
-                except Exception as e:
-                    st.error("Une erreur est survenue lors de l'envoi du message.")
-                    st.caption(f"Détail technique : {e}")
-            else:
-                st.error("Veuillez remplir tous les champs du formulaire.")
+
+# --- PAGE AUTHENTIFICATION (APPEL DU MODULE SÉPARÉ) ---
+elif page == "🔑 Espace Membres":
+    # On passe la connexion 'db' en paramètre pour que le module puisse parler à Firebase
+    afficher_espace_membres(db)
