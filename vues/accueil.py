@@ -35,7 +35,7 @@ def afficher_accueil():
             st.write("Ce cap historique a mis en lumière un palmarès exceptionnel qui fait la fierté de notre territoire :")
             
             # Correction ici : Chaîne normale sans le 'r' pour décoder correctement l'émoji du drapeau
-            drapeau_france = r"U0001F1EBU0001F1F7"
+            drapeau_france = "\U0001F1EB\U0001F1F7"
             
             st.write(f"- {drapeau_france} Une **quarantaine de participations aux championnats de France**.")
             st.write("• 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")
