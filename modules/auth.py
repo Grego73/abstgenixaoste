@@ -43,17 +43,28 @@ def afficher_espace_membres(db):
             up_licence = st.text_input("N° de Licence", value=user_data.get("num_licence", ""))
             up_telephone = st.text_input("N° de Téléphone", value=user_data.get("telephone", ""))
             
-            # Sélection du club
+            # --- LISTE DES CLUBS SÉCURISÉE SI LA BASE EST VIDE ---
             liste_clubs = ["Aucun club", "Amicale Boule Saint-Genix Aoste"]
-            try:
-                utilisateurs = db.collection("users").stream()
-                for u in utilisateurs:
-                    c_existant = u.to_dict().get("club")
-                    if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
-                        liste_clubs.append(c_existant)
-            except Exception:
-                pass
             
+            try:
+                # On tente de récupérer les utilisateurs existants
+                utilisateurs_ref = db.collection("users")
+                utilisateurs = utilisateurs_ref.stream()
+                
+                if utilisateurs:
+                    for u in utilisateurs:
+                        u_data = u.to_dict()
+                        if u_data: # Vérification que le document n'est pas vide
+                            c_existant = u_data.get("club")
+                            if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
+                                liste_clubs.append(c_existant)
+            except Exception as e:
+                # Si la collection n'existe pas encore, on ignore simplement l'erreur
+                pass
+                
+            clubs_tries = sorted([c for c in liste_clubs if c != "Aucun club"])
+            liste_clubs = ["Aucun club"] + clubs_tries + ["➕ Autre (Ajouter un nouveau club...)"]
+
             club_selectionne = st.selectbox("Votre Club / Société", ["Aucun club"] + sorted([c for c in liste_clubs if c != "Aucun club"]) + ["➕ Autre..."])
             up_club = st.text_input("Saisissez le nom du club") if club_selectionne == "➕ Autre..." else ("" if club_selectionne == "Aucun club" else club_selectionne)
 
