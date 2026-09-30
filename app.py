@@ -54,30 +54,56 @@ if page == "Accueil":
         
         # --- ZONE SAINT-GENIX (Jeux de la Glière) ---
         st.markdown("##### 📍 Jeux de La Glière (Saint-Genix)")
-        coords_sg = f"{DONNEES_CARTE['latitude'][0]}, {DONNEES_CARTE['longitude'][0]}"
+        
+        # On extrait proprement la latitude et la longitude de Saint-Genix (Index 0)
+        lat_sg = DONNEES_CARTE['latitude'][0]
+        lon_sg = DONNEES_CARTE['longitude'][0]
+        coords_texte_sg = f"{lat_sg}, {lon_sg}"
         
         col_sg1, col_sg2, col_sg3 = st.columns([1, 1, 1.5])
         with col_sg1:
-            st.link_button("🗺️ Google Maps", f"https://google.com{coords_sg.replace(' ', '')}&dir_action=navigate", use_container_width=True)
+            # Lien corrigé avec le slash / obligatoire après le .com/maps/dir/
+            st.link_button(
+                "🗺️ Google Maps", 
+                f"https://google.com{lat_sg},{lon_sg}&dir_action=navigate", 
+                use_container_width=True
+            )
         with col_sg2:
-            st.link_button("🚙 Waze", f"https://waze.com{coords_sg.replace(' ', '')}&navigate=yes", use_container_width=True)
+            st.link_button(
+                "🚙 Waze", 
+                f"https://waze.com{lat_sg},{lon_sg}&navigate=yes", 
+                use_container_width=True
+            )
         with col_sg3:
-            st.text_input("Coordonnées GPS 1", value=coords_sg, key="gps_sg", label_visibility="collapsed")
+            st.text_input("Coordonnées GPS 1", value=coords_texte_sg, key="gps_sg", label_visibility="collapsed")
 
         st.markdown(" ") 
 
         # --- ZONE AOSTE (Terrains d'Aoste) ---
         st.markdown("##### 📍 Terrains d'Aoste")
-        coords_aos = f"{DONNEES_CARTE['latitude'][1]}, {DONNEES_CARTE['longitude'][1]}"
+        
+        # On extrait proprement la latitude et la longitude d'Aoste (Index 1)
+        lat_aos = DONNEES_CARTE['latitude'][1]
+        lon_aos = DONNEES_CARTE['longitude'][1]
+        coords_texte_aos = f"{lat_aos}, {lon_aos}"
         
         col_aos1, col_aos2, col_aos3 = st.columns([1, 1, 1.5])
         with col_aos1:
-            st.link_button("🗺️ Google Maps", f"https://google.com{coords_aos.replace(' ', '')}&dir_action=navigate", use_container_width=True)
+            # Lien corrigé avec le slash / obligatoire après le .com/maps/dir/
+            st.link_button(
+                "🗺️ Google Maps", 
+                f"https://google.com{lat_aos},{lon_aos}&dir_action=navigate", 
+                use_container_width=True
+            )
         with col_aos2:
-            st.link_button("🚙 Waze", f"https://waze.com{coords_aos.replace(' ', '')}&navigate=yes", use_container_width=True)
+            st.link_button(
+                "🚙 Waze", 
+                f"https://waze.com{lat_aos},{lon_aos}&navigate=yes", 
+                use_container_width=True
+            )
         with col_aos3:
-            st.text_input("Coordonnées GPS 2", value=coords_aos, key="gps_aos", label_visibility="collapsed")
-          
+            st.text_input("Coordonnées GPS 2", value=coords_texte_aos, key="gps_aos", label_visibility="collapsed")
+       
 # --- PAGE ACTUALITÉS ---
 elif page == "La Vie du Club & Concours":
     st.title("🏆 Résultats & Compétitions")
