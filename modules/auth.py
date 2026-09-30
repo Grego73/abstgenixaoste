@@ -1,18 +1,12 @@
 import streamlit as st
-import hashlib
 import random
-
-# Hachage sécurisé du mot de passe
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+# On importe la fonction partagée depuis notre nouveau fichier utils
+from modules.utils import hash_password
 
 def afficher_espace_membres(db):
     if st.session_state["logged_in"]:
-        st.title(f"👋 Bienvenue dans votre espace, {st.session_state['user_pseudo']} !")
-        st.success("Vous êtes connecté au site de votre club.")
-        
-        st.subheader("Informations internes du club")
-        st.write("Prochaines réunions du bureau, documents internes du club, etc.")
+        st.title(f"👋 Bienvenue, {st.session_state['user_pseudo']} !")
+        st.success("Vous êtes connecté à l'espace membre.")
         
         if st.button("Se déconnecter"):
             st.session_state["logged_in"] = False
@@ -20,8 +14,7 @@ def afficher_espace_membres(db):
             st.rerun()
             
     elif st.session_state["verifying_email"]:
-        st.title("✉️ Vérification de votre adresse E-mail")
-        st.warning("Un code de vérification à 6 chiffres a été généré pour votre compte.")
+        st.title("✉️ Vérification E-mail")
         st.info(f"👉 Code de test généré : {st.session_state['verification_code']}")
         
         code_saisi = st.text_input("Entrez le code reçu", max_chars=6)
@@ -30,60 +23,45 @@ def afficher_espace_membres(db):
                 db.collection("users").document(st.session_state["verifying_email"]).update({
                     "email_verifie": True
                 })
-                st.success("Compte validé ! Vous pouvez maintenant vous connecter.")
+                st.success("Compte validé !")
                 st.session_state["verifying_email"] = None
                 st.rerun()
             else:
                 st.error("Code incorrect.")
-
     else:
         auth_action = st.tabs(["Connexion", "Créer un compte", "Mot de passe oublié"])
         
-        # 1. CONNEXION
         with auth_action:
-            st.subheader("Connectez-vous à votre espace club")
-            login_pseudo = st.text_input("Pseudo / Identifiant", key="login_p")
+            st.subheader("Connexion")
+            login_pseudo = st.text_input("Pseudo", key="login_p")
             login_password = st.text_input("Mot de passe", type="password", key="login_pwd")
-            
             if st.button("Se connecter"):
                 user_ref = db.collection("users").document(login_pseudo).get()
-                if user_ref.exists:
-                    user_data = user_ref.to_dict()
-                    if user_data.get("password") == hash_password(login_password):
-                        if not user_data.get("email_verifie", False):
-                            st.error("Votre adresse e-mail n'a pas encore été vérifiée.")
-                        else:
-                            st.session_state["logged_in"] = True
-                            st.session_state["user_pseudo"] = login_pseudo
-                            st.success("Connexion réussie !")
-                            st.rerun()
+                if user_ref.exists and user_ref.to_dict().get("password") == hash_password(login_password):
+                    if not user_ref.to_dict().get("email_verifie", False):
+                        st.error("E-mail non vérifié.")
                     else:
-                        st.error("Mot de passe incorrect.")
+                        st.session_state["logged_in"] = True
+                        st.session_state["user_pseudo"] = login_pseudo
+                        st.rerun()
                 else:
-                    st.error("Ce pseudo n'existe pas.")
+                    st.error("Identifiants incorrects.")
 
-        # 2. INSCRIPTION
         with auth_action:
-            st.subheader("Formulaire d'inscription")
-            st.markdown("**Champs obligatoires**")
+            st.subheader("Inscription")
             reg_pseudo = st.text_input("Pseudo choisi")
             reg_email = st.text_input("Adresse e-mail")
             reg_password = st.text_input("Mot de passe", type="password", key="reg_pwd")
             
-            st.markdown("---")
-            st.markdown("**Informations facultatives**")
             opt_nom = st.text_input("Nom (Facultatif)")
             opt_prenom = st.text_input("Prénom (Facultatif)")
             opt_licence = st.text_input("N° de Licence (Facultatif)")
             opt_telephone = st.text_input("N° de Téléphone (Facultatif)")
             
             if st.button("Créer mon compte"):
-                if not reg_pseudo or not reg_email or not reg_password:
-                    st.error("Veuillez remplir tous les champs obligatoires.")
-                else:
-                    check_user = db.collection("users").document(reg_pseudo).get()
-                    if check_user.exists:
-                        st.error("Ce pseudo est déjà pris.")
+                if reg_pseudo and reg_email and reg_password:
+                    if db.collection("users").document(reg_pseudo).get().exists:
+                        st.error("Pseudo déjà pris.")
                     else:
                         code_valid = str(random.randint(100000, 999999))
                         st.session_state["verification_code"] = code_valid
@@ -99,21 +77,13 @@ def afficher_espace_membres(db):
                             "num_licence": opt_licence,
                             "telephone": opt_telephone
                         })
-                        st.warning("Compte créé ! Validez votre e-mail à l'étape suivante.")
                         st.rerun()
 
-        # 3. MOT DE PASSE OUBLIÉ
         with auth_action:
-            st.subheader("Réinitialiser votre mot de passe")
-            forgot_pseudo = st.text_input("Entrez votre Pseudo", key="forgot_p")
-            new_password = st.text_input("Entrez votre NOUVEAU mot de passe", type="password", key="forgot_pwd")
-            
-            if st.button("Mettre à jour le mot de passe"):
-                user_doc = db.collection("users").document(forgot_pseudo).get()
-                if user_doc.exists:
-                    db.collection("users").document(forgot_pseudo).update({
-                        "password": hash_password(new_password)
-                    })
-                    st.success("Mot de passe modifié avec succès !")
-                else:
-                    st.error("Ce pseudo n'existe pas.")
+            st.subheader("Mot de passe oublié")
+            forgot_pseudo = st.text_input("Pseudo", key="forgot_p")
+            new_password = st.text_input("Nouveau mot de passe", type="password", key="forgot_pwd")
+            if st.button("Mettre à jour"):
+                if db.collection("users").document(forgot_pseudo).get().exists:
+                    db.collection("users").document(forgot_pseudo).update({"password": hash_password(new_password)})
+                    st.success("Modifié avec succès !")
