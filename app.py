@@ -55,7 +55,7 @@ if page == "Accueil":
                 "locale a soufflé ses **100 bougies**, entourée de ses membres actifs, de ses fidèles bénévoles et de ses partenaires."
             )
             st.write("Ce cap historique a mis en lumière un palmarès exceptionnel qui fait la fierté de notre territoire :")
-            st.markdown("- 🇨🇵 Une **quarantaine de participations aux championnats de France**.")
+            st.markdown("-fr Une **quarantaine de participations aux championnats de France**.")
             st.markdown("- 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")
             # ---------------------------------
             
