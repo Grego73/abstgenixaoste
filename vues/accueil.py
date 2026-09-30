@@ -33,9 +33,8 @@ def afficher_accueil():
             # Génération propre du drapeau français sans utiliser d'antislash textuel
             drapeau_france = chr(0x1F1EB) + chr(0x1F1F7)
             
-            st.markdown(f"- {drapeau_france} Une **quarantaine de participations aux championnats de France**.")
-            st.markdown("- 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")
-            
+            st.write("• 🇫🇷 Une **quarantaine de participations aux championnats de France**.")
+            st.write("• 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")            
             st.markdown(f"🔗 *Suivez l'actualité en direct sur notre [Page Facebook Officielle]({URL_FACEBOOK}).*")
                 
         st.map(pd.DataFrame(DONNEES_CARTE), latitude="latitude", longitude="longitude", size=40, height=280)
