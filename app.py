@@ -65,7 +65,7 @@ if page == "Accueil":
             # Lien corrigé avec le slash / obligatoire après le .com/maps/dir/
             st.link_button(
                 "🗺️ Google Maps", 
-                f"https://google.com/maps/@{lat_sg},{lon_sg}&dir_action=navigate", 
+                f"https://google.com/maps?q={lat_sg},{lon_sg}", 
                 use_container_width=True
             )
         with col_sg2:
@@ -92,7 +92,7 @@ if page == "Accueil":
             # Lien corrigé avec le slash / obligatoire après le .com/maps/dir/
             st.link_button(
                 "🗺️ Google Maps", 
-                f"https://google.com/maps/@{lat_aos},{lon_aos}&dir_action=navigate", 
+                f"https://google.com/maps?q={lat_aos},{lon_aos}&dir_action=navigate", 
                 use_container_width=True
             )
         with col_aos2:
