@@ -82,10 +82,7 @@ if page == "Accueil":
             "🚙 Ouvrir Waze", 
             "https://waze.com"
         )
-    
-    # Création de la carte à partir des variables globales
-    df_carte = pd.DataFrame(DONNEES_CARTE)
-    st.map(df_carte, latitude="latitude", longitude="longitude", size=40)
+
 # --- PAGE ACTUALITÉS ---
 elif page == "La Vie du Club & Concours":
     st.title("🏆 Résultats & Compétitions")
