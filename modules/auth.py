@@ -23,15 +23,18 @@ def afficher_espace_membres(db):
                 db.collection("users").document(st.session_state["verifying_email"]).update({
                     "email_verifie": True
                 })
-                st.success("Compte validé !")
+                st.success("Compte validé ! Vous pouvez maintenant vous connecter.")
                 st.session_state["verifying_email"] = None
                 st.rerun()
             else:
                 st.error("Code incorrect.")
     else:
-        auth_action = st.tabs(["Connexion", "Créer un compte", "Mot de passe oublié"])
+        # CORRECTION ICI : Dépaquetage correct des onglets Streamlit
+        tab_connexion, tab_inscription, tab_oublie = st.tabs([
+            "Connexion", "Créer un compte", "Mot de passe oublié"
+        ])
         
-        with auth_action:
+        with tab_connexion:
             st.subheader("Connexion")
             login_pseudo = st.text_input("Pseudo", key="login_p")
             login_password = st.text_input("Mot de passe", type="password", key="login_pwd")
@@ -47,7 +50,7 @@ def afficher_espace_membres(db):
                 else:
                     st.error("Identifiants incorrects.")
 
-        with auth_action:
+        with tab_inscription:
             st.subheader("Inscription")
             reg_pseudo = st.text_input("Pseudo choisi")
             reg_email = st.text_input("Adresse e-mail")
@@ -78,12 +81,12 @@ def afficher_espace_membres(db):
                             "telephone": opt_telephone
                         })
                         st.rerun()
+                else:
+                    st.error("Veuillez remplir les champs obligatoires (Pseudo, E-mail, Mot de passe).")
 
-        with auth_action:
+        with tab_oublie:
             st.subheader("Mot de passe oublié")
-            forgot_pseudo = st.text_input("Pseudo", key="forgot_p")
-            new_password = st.text_input("Nouveau mot de passe", type="password", key="forgot_pwd")
-            if st.button("Mettre à jour"):
-                if db.collection("users").document(forgot_pseudo).get().exists:
-                    db.collection("users").document(forgot_pseudo).update({"password": hash_password(new_password)})
-                    st.success("Modifié avec succès !")
+            st.warning("⚠️ Pour des raisons de sécurité, veuillez contacter un administrateur du club pour réinitialiser votre mot de passe.")
+            # Optionnel : Tu pourrais ajouter un formulaire qui envoie un message dans db.collection("messages") 
+            # demandant une réinitialisation de mot de passe au secrétariat.
+
