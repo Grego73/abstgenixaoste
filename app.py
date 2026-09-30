@@ -26,23 +26,43 @@ if st.session_state.get("is_admin", False):
 
 page = st.sidebar.radio("Navigation", liste_pages)
 
-# --- VERROU DE SÉCURITÉ : PREMIÈRE CONNEXION COMPLÈTE ---
+# --- VERROU DE SÉCURITÉ OPTIMISÉ (PLUS DE BOUCLE INFINIE) ---
 if st.session_state.get("logged_in", False):
-    try:
-        check_user = db.collection("users").document(st.session_state["user_pseudo"]).get()
-        if check_user.exists:
-            u_data = check_user.to_dict()
-            champs_a_verifier = ["nom", "prenom", "num_licence", "telephone", "club"]
-            a_des_champs_vides = any(not str(u_data.get(c, "")).strip() for c in champs_a_verifier)
-            
-            if u_data.get("premiere_connexion", True) and a_des_champs_vides and page != "🔑 Espace Membres":
-                st.sidebar.warning("⚠️ Action requise : Profil incomplet")
-                st.warning("### ⚙️ Finalisation de votre inscription requise")
-                st.write("Pour accéder aux différentes pages du site de l'Amicale Boule, veuillez valider ou compléter votre profil une première fois.")
-                st.info("👉 Rendez-vous dès maintenant sur l'onglet **🔑 Espace Membres** dans le menu de gauche.")
-                st.stop()
-    except Exception:
-        st.sidebar.error("⏳ Erreur de synchronisation avec le profil.")
+    # On initialise la variable dans la session pour éviter les lectures Firestore répétitives
+    if "premiere_connexion" not in st.session_state:
+        try:
+            check_user = db.collection("users").document(st.session_state["user_pseudo"]).get()
+            if check_user.exists:
+                u_data = check_user.to_dict()
+                st.session_state["premiere_connexion"] = u_data.get("premiere_connexion", True)
+                st.session_state["user_club"] = u_data.get("club", "")
+                st.session_state["user_nom"] = u_data.get("nom", "")
+                st.session_state["user_prenom"] = u_data.get("prenom", "")
+                st.session_state["user_licence"] = u_data.get("num_licence", "")
+                st.session_state["user_telephone"] = u_data.get("telephone", "")
+            else:
+                st.session_state["premiere_connexion"] = False
+        except Exception:
+            st.session_state["premiere_connexion"] = False
+
+    # Vérification locale ultra-rapide des champs vides (sans appel Firebase externe)
+    champs_profil = [
+        st.session_state.get("user_nom", ""),
+        st.session_state.get("user_prenom", ""),
+        st.session_state.get("user_licence", ""),
+        st.session_state.get("user_telephone", ""),
+        st.session_state.get("user_club", "")
+    ]
+    a_des_champs_vides = any(not str(c).strip() for c in champs_profil)
+
+    # Blocage uniquement si c'est requis
+    if st.session_state.get("premiere_connexion", True) and a_des_champs_vides and page != "🔑 Espace Membres":
+        st.sidebar.warning("⚠️ Action requise : Profil incomplet")
+        st.warning("### ⚙️ Finalisation de votre inscription requise")
+        st.write("Pour accéder aux différentes pages, veuillez valider ou compléter votre profil une première fois.")
+        st.info("👉 Rendez-vous sur l'onglet **🔑 Espace Membres** dans le menu de gauche pour débloquer le site.")
+        st.stop()
+
 
 # --- ROUTAGE DES PAGES ---
 if page == "Accueil":
