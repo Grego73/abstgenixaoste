@@ -11,8 +11,8 @@ BOULODROMES = "Jeux de La Glière (Saint-Genix) & Terrains d'Aoste"
 URL_FACEBOOK = "https://www.facebook.com/p/Amicale-Boule-St-Genix-Aoste-61570273360707/"
 # Coordonnées géographiques pour la carte d'accès (Saint-Genix et Aoste)
 DONNEES_CARTE = {
-    "latitude": [45.6012, 45.5872],
-    "longitude": [5.6328, 5.6083],
+    "latitude": [45.599354, 45.590435],
+    "longitude": [5.630103, 5.606534],
     "Nom du terrain": ["Jeux de La Glière (Saint-Genix)", "Terrains de boules d'Aoste"]
 }
 
