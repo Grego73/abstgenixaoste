@@ -6,7 +6,7 @@ from modules.utils import (
     ADRESSE_SIEGE, BOULODROMES, URL_FACEBOOK, URL_BOULE_IMAGE, DONNEES_CARTE
 )
 from modules.auth import afficher_espace_membres
-
+    
 # Lancement des configurations et de la base de données
 db = initialiser_firebase()
 verifier_session()
