@@ -30,7 +30,7 @@ def afficher_accueil():
             )
             st.write("Ce cap historique a mis en lumière un palmarès exceptionnel qui fait la fierté de notre territoire :")
             drapeau_france = "\U0001F1EB\U0001F1F7"
-            st.markdown(f"- {drapeau_france} Une **quarantaine de participations aux championnats de France**.")
+            st.markdown("- :flag-fr: Une **quarantaine de participations aux championnats de France**.")
             st.markdown("- 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")
             
             st.markdown(f"🔗 *Suivez l'actualité en direct sur notre [Page Facebook Officielle]({URL_FACEBOOK}).*")
