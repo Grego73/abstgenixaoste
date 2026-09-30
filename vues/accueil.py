@@ -33,7 +33,7 @@ def afficher_accueil():
             # Génération propre du drapeau français sans utiliser d'antislash textuel
             drapeau_france = chr(0x1F1EB) + chr(0x1F1F7)
             
-            st.write("• 🇫🇷 Une **quarantaine de participations aux championnats de France**.")
+            st.write(f"- {drapeau_france} Une **quarantaine de participations aux championnats de France**.")
             st.write("• 🏆 De multiples titres de **champions de Savoie** (à l'image des qualifications régulières de nos équipes en simple, double ou quadrette).")            
             st.markdown(f"🔗 *Suivez l'actualité en direct sur notre [Page Facebook Officielle]({URL_FACEBOOK}).*")
                 
