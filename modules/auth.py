@@ -43,29 +43,24 @@ def afficher_espace_membres(db):
             up_licence = st.text_input("N° de Licence", value=user_data.get("num_licence", ""))
             up_telephone = st.text_input("N° de Téléphone", value=user_data.get("telephone", ""))
             
-            # --- LISTE DES CLUBS SÉCURISÉE SI LA BASE EST VIDE ---
+            # --- LISTE DES CLUBS SÉCURISÉE ---
             liste_clubs = ["Aucun club", "Amicale Boule Saint-Genix Aoste"]
             
             try:
-                # On tente de récupérer les utilisateurs existants
-                utilisateurs_ref = db.collection("users")
-                utilisateurs = utilisateurs_ref.stream()
-                
-                if utilisateurs:
-                    for u in utilisateurs:
-                        u_data = u.to_dict()
-                        if u_data: # Vérification que le document n'est pas vide
-                            c_existant = u_data.get("club")
-                            if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
-                                liste_clubs.append(c_existant)
-            except Exception as e:
-                # Si la collection n'existe pas encore, on ignore simplement l'erreur
+                utilisateurs = db.collection("users").stream()
+                for u in utilisateurs:
+                    u_data = u.to_dict()
+                    if u_data:
+                        c_existant = u_data.get("club")
+                        if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
+                            liste_clubs.append(c_existant)
+            except Exception:
                 pass
                 
             clubs_tries = sorted([c for c in liste_clubs if c != "Aucun club"])
-            liste_clubs = ["Aucun club"] + clubs_tries + ["➕ Autre (Ajouter un nouveau club...)"]
-
-            club_selectionne = st.selectbox("Votre Club / Société", ["Aucun club"] + sorted([c for c in liste_clubs if c != "Aucun club"]) + ["➕ Autre..."])
+            
+            # Nettoyage de la liste pour la selectbox
+            club_selectionne = st.selectbox("Votre Club / Société", ["Aucun club"] + clubs_tries + ["➕ Autre..."])
             up_club = st.text_input("Saisissez le nom du club") if club_selectionne == "➕ Autre..." else ("" if club_selectionne == "Aucun club" else club_selectionne)
 
             col1, col2 = st.columns(2)
@@ -94,7 +89,6 @@ def afficher_espace_membres(db):
                 st.session_state["user_pseudo"] = ""
                 st.session_state["is_admin"] = False
                 
-                # NETTOYAGE : Supprime les infos de profil de la session pour le prochain utilisateur
                 variables_profil = ["premiere_connexion", "user_club", "user_nom", "user_prenom", "user_licence", "user_telephone"]
                 for var in variables_profil:
                     if var in st.session_state:
@@ -165,7 +159,6 @@ def afficher_espace_membres(db):
             opt_licence = st.text_input("N° de Licence (Facultatif)")
             opt_telephone = st.text_input("N° de Téléphone (Facultatif)")
             
-            # Liste dynamique des clubs
             liste_clubs = ["Aucun club", "Amicale Boule Saint-Genix Aoste"]
             try:
                 utilisateurs = db.collection("users").stream()
@@ -196,17 +189,18 @@ def afficher_espace_membres(db):
                 else:
                     st.error("Veuillez remplir les champs obligatoires.")
 
+        # --- ONGLET 3 : MOT DE PASSE OUBLIÉ ---
         with tab_oublie:
             st.subheader("Mot de passe oublié")
             if st.session_state["reset_step"] == 1:
                 forgot_pseudo = st.text_input("Entrez votre Pseudo", key="forgot_p")
                 if st.button("Générer un code de récupération"):
                     if db.collection("users").document(forgot_pseudo).get().exists:
-                                                # Génération du code à 6 chiffres pour la réinitialisation
+                        # Génération du code à 6 chiffres pour la réinitialisation
                         st.session_state["reset_code"] = str(random.randint(100000, 999999))
                         st.session_state["reset_pseudo"] = forgot_pseudo
                         st.session_state["reset_step"] = 2
-                        st.success("Code de récupération généré ! Passage à l'étape suivante.")
+                        st.success("Code de récupération généré !")
                         st.rerun()
                     else:
                         st.error("Ce pseudo n'existe pas dans notre base de données.")
@@ -238,5 +232,4 @@ def afficher_espace_membres(db):
                         st.session_state["reset_pseudo"] = None
                         st.session_state["reset_code"] = None
                         st.rerun()
-                    else:
-                        st.error("Code incorrect ou champ vide.")
+
