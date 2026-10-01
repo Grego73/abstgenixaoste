@@ -75,7 +75,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         
         with urllib.request.urlopen(req) as response:
             # Correction de la syntaxe : 201 correspond au succès de création de mail chez Brevo
-            if response.status in:
+            if response.status in [200, 201, 202]:
                 return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
