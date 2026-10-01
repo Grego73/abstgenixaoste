@@ -13,7 +13,7 @@ def afficher_administration(db):
         "📅 Ajouter un Concours", "📋 Gestion des Licences", "✉️ Messages Reçus"
     ])
     
-    # Onglet 1 : Ajouter un Concours
+    # --- ONGLET 1 : AJOUTER UN CONCOURS ---
     with admin_tab1:
         st.subheader("Créer un nouvel événement officiel")
         with st.form("add_event_form", clear_on_submit=True):
@@ -38,7 +38,7 @@ def afficher_administration(db):
                 else:
                     st.error("Veuillez remplir tous les champs obligatoires.")
                     
-    # Onglet 2 : Gestion des Licences
+    # --- ONGLET 2 : GESTION DES LICENCES & EXPORT ---
     with admin_tab2:
         st.subheader("Validation et consultation des fiches membres")
         try:
@@ -49,13 +49,26 @@ def afficher_administration(db):
                 df_users = pd.DataFrame(liste_users)
                 colonnes_visibles = ["pseudo", "nom", "prenom", "email", "num_licence", "club", "telephone", "role", "email_verifie"]
                 colonnes_visibles = [c for c in colonnes_visibles if c in df_users.columns]
-                st.dataframe(df_users[colonnes_visibles], use_container_width=True)
+                
+                df_filtre = df_users[colonnes_visibles]
+                st.dataframe(df_filtre, use_container_width=True)
+                
+                # 📥 AJOUT DE L'EXPORT CSV (Fonctionnalité 2 du programme)
+                st.markdown("#### 📂 Extraction des données")
+                csv_data = df_filtre.to_csv(index=False, encoding="utf-8-sig")
+                st.download_button(
+                    label="📥 Télécharger la liste des membres (CSV)",
+                    data=csv_data,
+                    file_name="membres_amicale_boule.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
             else:
                 st.info("Aucun membre inscrit pour le moment.")
         except Exception as e:
             st.error(f"Impossible de charger les utilisateurs : {e}")
             
-    # Onglet 3 : Messages du Secrétariat
+    # --- ONGLET 3 : MESSAGES DU SECRÉTARIAT ---
     with admin_tab3:
         st.subheader("Messages reçus depuis le formulaire de contact")
         try:
