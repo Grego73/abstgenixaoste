@@ -57,7 +57,7 @@ def afficher_accueil():
             
         st.markdown("#### ✨ Un Palmarès d'Exception")
         
-        col_m1, col_m2 = (2)
+        col_m1, col_m2 = st.columns(2)
         with col_m1:
             st.metric(label="Participations au Championnat de France", value="~40 🇨🇵")
         with col_m2:
