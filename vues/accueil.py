@@ -79,7 +79,7 @@ def afficher_accueil():
         lon_sg = DONNEES_CARTE['longitude'][0]
         coords_texte_sg = f"{lat_sg}, {lon_sg}"
         
-        col_sg1, col_sg2, col_sg3 = ([1, 1, 1.5])
+        col_sg1, col_sg2, col_sg3 = st.columns([1, 1, 1.5])
         with col_sg1:
             st.link_button(
                 "🗺️ Google Maps", 
