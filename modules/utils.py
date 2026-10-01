@@ -2,6 +2,8 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 import hashlib
+import json
+import urllib.request
 
 # 1. VARIABLES GLOBALES DE L'AMICALE BOULE SAINT-GENIX AOSTE
 NOM_CLUB = "Amicale Boule Saint-Genix Aoste"
@@ -44,3 +46,34 @@ def verifier_session():
         st.session_state["user_pseudo"] = ""
     if "verifying_email" not in st.session_state:
         st.session_state["verifying_email"] = None
+
+def envoyer_email_brevo(destinataire_email, sujet, message_html):
+    """Envoie un e-mail via l'API REST v3 de Brevo."""
+    try:
+        # Récupération des secrets configurés
+        api_key = st.secrets["brevo"]["api_key"]
+        sender_email = st.secrets["brevo"]["sender_email"]
+        
+        url = "https://brevo.com"
+        headers = {
+            "accept": "application/json",
+            "api-key": api_key,
+            "content-type": "application/json"
+        }
+        
+        payload = {
+            "sender": {"name": "Amicale Boule St-Genix Aoste", "email": sender_email},
+            "to": [{"email": destinataire_email}],
+            "subject": sujet,
+            "htmlContent": message_html
+        }
+        
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        
+        with urllib.request.urlopen(req) as response:
+            if response.status in:
+                return True
+    except Exception as e:
+        st.error(f"Erreur lors de l'envoi de l'e-mail : {e}")
+    return False
