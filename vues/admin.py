@@ -9,8 +9,8 @@ def afficher_administration(db):
     st.title("🛡️ Espace Gestionnaires & Administrateurs")
     st.markdown("---")
     
-    admin_tab1, admin_tab2, admin_tab3 = st.tabs([
-        "📅 Ajouter un Concours", "📋 Gestion des Licences", "✉️ Messages Reçus"
+    admin_tab1, admin_tab2, admin_tab3, admin_tab4 = st.tabs([
+        "📅 Ajouter un Concours", "📋 Gestion des Licences", "✉️ Messages Reçus", "🏅 Gérer le Palmarès"
     ])
     
     # --- ONGLET 1 : AJOUTER UN CONCOURS ---
@@ -38,7 +38,7 @@ def afficher_administration(db):
                 else:
                     st.error("Veuillez remplir tous les champs obligatoires.")
                     
-    # --- ONGLET 2 : GESTION DES LICENCES & EXPORT ---
+    # --- ONGLET 2 : GESTION DES LICENCES ---
     with admin_tab2:
         st.subheader("Validation et consultation des fiches membres")
         try:
@@ -53,7 +53,6 @@ def afficher_administration(db):
                 df_filtre = df_users[colonnes_visibles]
                 st.dataframe(df_filtre, use_container_width=True)
                 
-                # 📥 AJOUT DE L'EXPORT CSV (Fonctionnalité 2 du programme)
                 st.markdown("#### 📂 Extraction des données")
                 csv_data = df_filtre.to_csv(index=False, encoding="utf-8-sig")
                 st.download_button(
@@ -89,3 +88,24 @@ def afficher_administration(db):
                 st.success("🎉 Aucun nouveau message non lu ! Tout est à jour.")
         except Exception:
             st.caption("Aucun message à traiter dans la base de données.")
+
+    # --- ONGLET 4 : AJOUTER UN EXPLOIT / PALMARÈS ---
+    with admin_tab4:
+        st.subheader("Enregistrer une performance ou une qualification")
+        with st.form("add_palmares_form", clear_on_submit=True):
+            p_titre = st.text_input("Titre de la performance (ex: 🥈 Vice-championne de Bellecour)")
+            p_joueurs = st.text_input("Nom du ou des joueurs concernés (ex: Nadège Benedetti)")
+            p_cat = st.text_input("Catégorie / Division (ex: Féminine F3/F4, Quadrette M4, Double M2)")
+            p_desc = st.text_area("Description de l'exploit (détails de la finale, score, contexte...)")
+            
+            if st.form_submit_button("Ajouter au tableau d'honneur"):
+                if p_titre and p_joueurs and p_desc:
+                    db.collection("palmares").add({
+                        "titre": p_titre.strip(),
+                        "joueurs": p_joueurs.strip(),
+                        "categorie": p_cat.strip(),
+                        "description": p_desc.strip()
+                    })
+                    st.success(f"Le palmarès pour '{p_joueurs}' a été ajouté avec succès !")
+                else:
+                    st.error("Veuillez remplir au moins le titre, les joueurs et la description.")
