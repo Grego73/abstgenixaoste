@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 import hashlib
+from modules.utils import envoyer_email_brevo
 
 # 1. FONCTION TECHNIQUE DE SÉCURITÉ
 def hash_password(password):
@@ -8,7 +9,7 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-# 2. INTERFACE UTILISATEUR (CONNEXION / INSCRIPTION / RÉCUPÉRATION)
+# 2. INTERFACE UTILISATEUR PRINCIPALE
 def afficher_espace_membres(db):
     # Initialisation des variables de session pour la sécurité
     if "reset_pseudo" not in st.session_state:
@@ -42,39 +43,34 @@ def afficher_espace_membres(db):
             up_prenom = st.text_input("Prénom", value=user_data.get("prenom", ""))
             up_licence = st.text_input("N° de Licence", value=user_data.get("num_licence", ""))
             
-            # --- 🛠️ BLOC DYNAMIQUE : SUGGESTION DES CLUBS EXISTANTS ---
+            # --- BLOC DYNAMIQUE DE PREMIÈRE CONNEXION : SUGGESTION DES CLUBS ---
             liste_clubs = ["Aucun club", "Amicale Boule Saint-Genix Aoste"]
             try:
-                # Lecture en temps réel des profils existants pour enrichir les suggestions
                 utilisateurs = db.collection("users").stream()
                 for u in utilisateurs:
                     u_data = u.to_dict()
                     if u_data:
                         c_existant = str(u_data.get("club", "")).strip()
-                        # Évite les doublons et les valeurs vides
                         if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
                             liste_clubs.append(c_existant)
             except Exception:
                 pass
                 
-            # Tri alphabétique des clubs découverts
             clubs_tries = sorted([c for c in liste_clubs if c != "Aucun club"])
             
-            # Menu déroulant identique à l'inscription
             club_selectionne = st.selectbox(
                 "Votre Club / Société", 
                 ["Aucun club"] + clubs_tries + ["➕ Autre..."],
                 key="first_login_club_select"
             )
             
-            # Affichage conditionnel du champ de texte libre
             if club_selectionne == "➕ Autre...":
                 up_club = st.text_input("Saisissez le nom du club", key="first_login_club_autre").strip()
             elif club_selectionne == "Aucun club":
                 up_club = ""
             else:
                 up_club = club_selectionne
-            # -----------------------------------------------------------
+            # -----------------------------------------------------------------
             
             up_telephone = st.text_input("N° de Téléphone", value=user_data.get("telephone", ""))
 
@@ -95,7 +91,6 @@ def afficher_espace_membres(db):
                     db.collection("users").document(user_pseudo).update({"premiere_connexion": False})
                     st.rerun()
             return
-
 
         # Interface standard de l'espace membre connecté
         st.title(f"👋 Espace de {st.session_state['user_pseudo']}")
@@ -131,15 +126,15 @@ def afficher_espace_membres(db):
                 st.success("Modifications enregistrées !")
                 st.rerun()
 
-    # --- CAS 2 : VÉRIFICATION CODE EMAIL ---
+    # --- CAS 2 : VÉRIFICATION CODE E-MAIL ACTIF ---
     elif st.session_state["verifying_email"]:
         st.title("✉️ Vérification E-mail")
-        st.info(f"👉 Code généré : {st.session_state['verification_code']}")
+        st.info("Veuillez saisir le code d'activation reçu dans votre boîte de réception.")
         code_saisi = st.text_input("Entrez le code reçu", max_chars=6)
         if st.button("Valider mon compte"):
             if code_saisi == st.session_state["verification_code"]:
                 db.collection("users").document(st.session_state["verifying_email"]).update({"email_verifie": True})
-                st.success("Compte validé !")
+                st.success("Compte validé ! Vous pouvez maintenant vous connecter.")
                 st.session_state["verifying_email"] = None
                 st.rerun()
             else:
@@ -177,39 +172,34 @@ def afficher_espace_membres(db):
             opt_prenom = st.text_input("Prénom (Facultatif)")
             opt_licence = st.text_input("N° de Licence (Facultatif)")
             
-            # --- 🛠️ BLOC DYNAMIQUE : RÉCUPÉRATION DES CLUBS DE LA BASE FIREBASE ---
+            # --- BLOC DYNAMIQUE D'INSCRIPTION : SUGGESTION DES CLUBS ---
             liste_clubs = ["Aucun club", "Amicale Boule Saint-Genix Aoste"]
             try:
-                # Lecture en temps réel des profils existants pour enrichir les suggestions
                 utilisateurs = db.collection("users").stream()
                 for u in utilisateurs:
                     u_data = u.to_dict()
                     if u_data:
                         c_existant = str(u_data.get("club", "")).strip()
-                        # On évite d'ajouter des doublons ou des valeurs vides dans la liste
                         if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
                             liste_clubs.append(c_existant)
             except Exception:
-                # Si la collection est vide ou indisponible, l'application ne plante pas
                 pass
             
-            # Tri alphabétique des clubs découverts (hors option par défaut)
             clubs_tries = sorted([c for c in liste_clubs if c != "Aucun club"])
             
-            # Menu déroulant mis à jour dynamiquement
             club_selectionne = st.selectbox(
                 "Sélectionnez votre Club (Facultatif)", 
-                ["Aucun club"] + clubs_tries + ["➕ Autre..."]
+                ["Aucun club"] + clubs_tries + ["➕ Autre..."],
+                key="reg_club_select"
             )
             
-            # Affichage conditionnel si le club n'est pas répertorié
             if club_selectionne == "➕ Autre...":
                 opt_club = st.text_input("Saisissez le nom de votre club", key="reg_club_autre").strip()
             elif club_selectionne == "Aucun club":
                 opt_club = ""
             else:
                 opt_club = club_selectionne
-            # ------------------------------------------------------------------------
+            # -----------------------------------------------------------------
 
             opt_telephone = st.text_input("N° de Téléphone (Facultatif)")
             
@@ -218,25 +208,39 @@ def afficher_espace_membres(db):
                     if db.collection("users").document(reg_pseudo).get().exists:
                         st.error("Pseudo déjà pris.")
                     else:
-                        st.session_state["verification_code"] = str(random.randint(100000, 999999))
+                        code_activation = str(random.randint(100000, 999999))
+                        
+                        sujet_mail = "🏆 Validation de votre compte - Amicale Boule"
+                        html_mail = f"""
+                        <h3>Bienvenue chez l'Amicale Boule Saint-Genix Aoste !</h3>
+                        <p>Merci pour votre inscription. Voici votre code de validation pour activer votre espace membre :</p>
+                        <h2 style='color: #1E3A8A;'>{code_activation}</h2>
+                        <p>À très vite sur les boulodromes !</p>
+                        """
+                        
+                        st.session_state["verification_code"] = code_activation
                         st.session_state["verifying_email"] = reg_pseudo
-                        db.collection("users").document(reg_pseudo).set({
-                            "pseudo": reg_pseudo, 
-                            "email": reg_email, 
-                            "password": hash_password(reg_password),
-                            "email_verifie": False, 
-                            "nom": opt_nom.strip(), 
-                            "prenom": opt_prenom.strip(),
-                            "num_licence": opt_licence.strip(), 
-                            "club": opt_club,  # Sauvegarde du club sélectionné ou saisi
-                            "telephone": opt_telephone.strip(),
-                            "role": "membre", 
-                            "premiere_connexion": True
-                        })
-                        st.rerun()
+                        
+                        if envoyer_email_brevo(reg_email, sujet_mail, html_mail):
+                            db.collection("users").document(reg_pseudo).set({
+                                "pseudo": reg_pseudo, 
+                                "email": reg_email, 
+                                "password": hash_password(reg_password),
+                                "email_verifie": False, 
+                                "nom": opt_nom.strip(), 
+                                "prenom": opt_prenom.strip(),
+                                "num_licence": opt_licence.strip(), 
+                                "club": opt_club, 
+                                "telephone": opt_telephone.strip(),
+                                "role": "membre", 
+                                "premiere_connexion": True
+                            })
+                            st.success("📩 Un e-mail contenant votre code de validation vous a été envoyé.")
+                            st.rerun()
+                        else:
+                            st.error("Impossible d'envoyer l'e-mail de validation. Veuillez vérifier votre adresse.")
                 else:
                     st.error("Veuillez remplir les champs obligatoires.")
-
 
         # --- ONGLET 3 : MOT DE PASSE OUBLIÉ ---
         with tab_oublie:
@@ -244,20 +248,34 @@ def afficher_espace_membres(db):
             if st.session_state["reset_step"] == 1:
                 forgot_pseudo = st.text_input("Entrez votre Pseudo", key="forgot_p")
                 if st.button("Générer un code de récupération"):
-                    if db.collection("users").document(forgot_pseudo).get().exists:
-                        # Génération du code à 6 chiffres pour la réinitialisation
-                        st.session_state["reset_code"] = str(random.randint(100000, 999999))
+                    user_doc = db.collection("users").document(forgot_pseudo).get()
+                    if user_doc.exists:
+                        u_data = user_doc.to_dict()
+                        email_dest = u_data.get("email")
+                        code_recup = str(random.randint(100000, 999999))
+                        
+                        sujet_mail = "🔐 Réinitialisation de votre mot de passe"
+                        html_mail = f"""
+                        <h3>Demande de réinitialisation</h3>
+                        <p>Vous avez demandé la modification de votre mot de passe. Utilisez le code temporaire suivant :</p>
+                        <h2 style='color: #DC2626;'>{code_recup}</h2>
+                        <p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.</p>
+                        """
+                        
+                        st.session_state["reset_code"] = code_recup
                         st.session_state["reset_pseudo"] = forgot_pseudo
-                        st.session_state["reset_step"] = 2
-                        st.success("Code de récupération généré !")
-                        st.rerun()
+                        
+                        if envoyer_email_brevo(email_dest, sujet_mail, html_mail):
+                            st.session_state["reset_step"] = 2
+                            st.success("📩 Un e-mail contenant le code de secours a été envoyé.")
+                            st.rerun()
+                        else:
+                            st.error("Erreur lors de l'envoi de l'e-mail de secours.")
                     else:
                         st.error("Ce pseudo n'existe pas dans notre base de données.")
                         
-            # ÉTAPE 2 : Saisie du code reçu et du nouveau mot de passe
             elif st.session_state["reset_step"] == 2:
-                st.info(f"👉 Code de récupération (simulation e-mail) : {st.session_state['reset_code']}")
-                code_saisi = st.text_input("Entrez le code reçu", max_chars=6, key="forgot_code_input")
+                code_saisi = st.text_input("Entrez le code reçu par e-mail", max_chars=6, key="forgot_code_input")
                 new_password = st.text_input("Nouveau mot de passe", type="password", key="forgot_pwd")
                 
                 col_btn1, col_btn2 = st.columns(2)
@@ -268,7 +286,6 @@ def afficher_espace_membres(db):
                                 "password": hash_password(new_password)
                             })
                             st.success("Mot de passe modifié avec succès !")
-                            # Réinitialisation des états pour la prochaine utilisation
                             st.session_state["reset_step"] = 1
                             st.session_state["reset_pseudo"] = None
                             st.session_state["reset_code"] = None
@@ -281,4 +298,4 @@ def afficher_espace_membres(db):
                         st.session_state["reset_pseudo"] = None
                         st.session_state["reset_code"] = None
                         st.rerun()
-
+            
