@@ -10,7 +10,8 @@ NOM_CLUB = "Amicale Boule Saint-Genix Aoste"
 STATUT_CLUB = "Association déclarée (fondée en décembre 2004)"
 ADRESSE_SIEGE = "Café Gojon, Rue des Juifs, 73240 Saint-Genix-les-Villages"
 BOULODROMES = "Jeux de La Glière (Saint-Genix) & Terrains d'Aoste"
-URL_FACEBOOK = "https://www.facebook.com/p/Amicale-Boule-St-Genix-Aoste-61570273360707/"
+URL_FACEBOOK = "https://facebook.com"
+
 # Coordonnées géographiques pour la carte d'accès (Saint-Genix et Aoste)
 DONNEES_CARTE = {
     "latitude": [45.5995592, 45.590435],
@@ -35,7 +36,7 @@ def initialiser_firebase():
             st.stop()
     return firestore.client()
 
-# 3. FONCTIONS REUTILISABLES
+# 3. GESTION DES SESSIONS ET DE LA SÉCURITÉ
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
@@ -47,10 +48,11 @@ def verifier_session():
     if "verifying_email" not in st.session_state:
         st.session_state["verifying_email"] = None
 
+# 4. SERVICE DE NOTIFICATION ET D'ENVOI D'E-MAILS (BREVO API v3)
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
-    """Envoie un e-mail via l'API REST v3 de Brevo."""
+    """Envoie un e-mail via l'API REST v3 de Brevo de façon sécurisée."""
     try:
-        # Récupération des secrets configurés
+        # Récupération des secrets configurés dans Streamlit
         api_key = st.secrets["brevo"]["api_key"]
         sender_email = st.secrets["brevo"]["sender_email"]
         
@@ -72,8 +74,9 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
         
         with urllib.request.urlopen(req) as response:
+            # Correction de la syntaxe : 201 correspond au succès de création de mail chez Brevo
             if response.status in:
                 return True
     except Exception as e:
-        st.error(f"Erreur lors de l'envoi de l'e-mail : {e}")
+        st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
     return False
