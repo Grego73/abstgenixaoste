@@ -74,7 +74,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
         
         with urllib.request.urlopen(req) as response:
-            # Correction de la syntaxe : 201 correspond au succès de création de mail chez Brevo
+            # Code HTTP de succès pour Brevo (201 Created)
             if response.status in [200, 201, 202]:
                 return True
     except Exception as e:
