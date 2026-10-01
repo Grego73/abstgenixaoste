@@ -9,7 +9,7 @@ def afficher_accueil():
     if not os.path.exists(path_logo):
         path_logo = "logo_club.png" # Secours si mis à la racine
     
-    col_l1, col_l2, col_l3 = st.columns()
+    col_l1, col_l2, col_l3 = st.columns(3)
     with col_l2: # Centre le logo
         if os.path.exists(path_logo):
             st.image(path_logo, use_container_width=True)
@@ -57,7 +57,7 @@ def afficher_accueil():
             
         st.markdown("#### ✨ Un Palmarès d'Exception")
         
-        col_m1, col_m2 = st.columns(2)
+        col_m1, col_m2 = (2)
         with col_m1:
             st.metric(label="Participations au Championnat de France", value="~40 🇨🇵")
         with col_m2:
@@ -79,7 +79,7 @@ def afficher_accueil():
         lon_sg = DONNEES_CARTE['longitude'][0]
         coords_texte_sg = f"{lat_sg}, {lon_sg}"
         
-        col_sg1, col_sg2, col_sg3 = st.columns([1, 1, 1.5])
+        col_sg1, col_sg2, col_sg3 = ([1, 1, 1.5])
         with col_sg1:
             st.link_button(
                 "🗺️ Google Maps", 
