@@ -41,35 +41,53 @@ def afficher_espace_membres(db):
             up_nom = st.text_input("Nom", value=user_data.get("nom", ""))
             up_prenom = st.text_input("Prénom", value=user_data.get("prenom", ""))
             up_licence = st.text_input("N° de Licence", value=user_data.get("num_licence", ""))
-            up_telephone = st.text_input("N° de Téléphone", value=user_data.get("telephone", ""))
             
-            # --- LISTE DES CLUBS SÉCURISÉE ---
+            # --- 🛠️ BLOC DYNAMIQUE : SUGGESTION DES CLUBS EXISTANTS ---
             liste_clubs = ["Aucun club", "Amicale Boule Saint-Genix Aoste"]
-            
             try:
+                # Lecture en temps réel des profils existants pour enrichir les suggestions
                 utilisateurs = db.collection("users").stream()
                 for u in utilisateurs:
                     u_data = u.to_dict()
                     if u_data:
-                        c_existant = u_data.get("club")
+                        c_existant = str(u_data.get("club", "")).strip()
+                        # Évite les doublons et les valeurs vides
                         if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
                             liste_clubs.append(c_existant)
             except Exception:
                 pass
                 
+            # Tri alphabétique des clubs découverts
             clubs_tries = sorted([c for c in liste_clubs if c != "Aucun club"])
             
-            # Nettoyage de la liste pour la selectbox
-            club_selectionne = st.selectbox("Votre Club / Société", ["Aucun club"] + clubs_tries + ["➕ Autre..."])
-            up_club = st.text_input("Saisissez le nom du club") if club_selectionne == "➕ Autre..." else ("" if club_selectionne == "Aucun club" else club_selectionne)
+            # Menu déroulant identique à l'inscription
+            club_selectionne = st.selectbox(
+                "Votre Club / Société", 
+                ["Aucun club"] + clubs_tries + ["➕ Autre..."],
+                key="first_login_club_select"
+            )
+            
+            # Affichage conditionnel du champ de texte libre
+            if club_selectionne == "➕ Autre...":
+                up_club = st.text_input("Saisissez le nom du club", key="first_login_club_autre").strip()
+            elif club_selectionne == "Aucun club":
+                up_club = ""
+            else:
+                up_club = club_selectionne
+            # -----------------------------------------------------------
+            
+            up_telephone = st.text_input("N° de Téléphone", value=user_data.get("telephone", ""))
 
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("Enregistrer mes informations", type="primary"):
                     db.collection("users").document(user_pseudo).update({
-                        "nom": up_nom.strip(), "prenom": up_prenom.strip(),
-                        "num_licence": up_licence.strip(), "telephone": up_telephone.strip(),
-                        "club": up_club.strip(), "premiere_connexion": False
+                        "nom": up_nom.strip(), 
+                        "prenom": up_prenom.strip(),
+                        "num_licence": up_licence.strip(), 
+                        "telephone": up_telephone.strip(),
+                        "club": up_club, 
+                        "premiere_connexion": False
                     })
                     st.rerun()
             with col2:
@@ -77,6 +95,7 @@ def afficher_espace_membres(db):
                     db.collection("users").document(user_pseudo).update({"premiere_connexion": False})
                     st.rerun()
             return
+
 
         # Interface standard de l'espace membre connecté
         st.title(f"👋 Espace de {st.session_state['user_pseudo']}")
