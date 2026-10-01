@@ -157,20 +157,42 @@ def afficher_espace_membres(db):
             opt_nom = st.text_input("Nom (Facultatif)")
             opt_prenom = st.text_input("Prénom (Facultatif)")
             opt_licence = st.text_input("N° de Licence (Facultatif)")
-            opt_telephone = st.text_input("N° de Téléphone (Facultatif)")
             
+            # --- 🛠️ BLOC DYNAMIQUE : RÉCUPÉRATION DES CLUBS DE LA BASE FIREBASE ---
             liste_clubs = ["Aucun club", "Amicale Boule Saint-Genix Aoste"]
             try:
+                # Lecture en temps réel des profils existants pour enrichir les suggestions
                 utilisateurs = db.collection("users").stream()
                 for u in utilisateurs:
-                    c_existant = u.to_dict().get("club")
-                    if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
-                        liste_clubs.append(c_existant)
+                    u_data = u.to_dict()
+                    if u_data:
+                        c_existant = str(u_data.get("club", "")).strip()
+                        # On évite d'ajouter des doublons ou des valeurs vides dans la liste
+                        if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
+                            liste_clubs.append(c_existant)
             except Exception:
+                # Si la collection est vide ou indisponible, l'application ne plante pas
                 pass
             
-            club_selectionne = st.selectbox("Sélectionnez votre Club", ["Aucun club"] + sorted([c for c in liste_clubs if c != "Aucun club"]) + ["➕ Autre..."])
-            opt_club = st.text_input("Nom du club") if club_selectionne == "➕ Autre..." else ("" if club_selectionne == "Aucun club" else club_selectionne)
+            # Tri alphabétique des clubs découverts (hors option par défaut)
+            clubs_tries = sorted([c for c in liste_clubs if c != "Aucun club"])
+            
+            # Menu déroulant mis à jour dynamiquement
+            club_selectionne = st.selectbox(
+                "Sélectionnez votre Club (Facultatif)", 
+                ["Aucun club"] + clubs_tries + ["➕ Autre..."]
+            )
+            
+            # Affichage conditionnel si le club n'est pas répertorié
+            if club_selectionne == "➕ Autre...":
+                opt_club = st.text_input("Saisissez le nom de votre club", key="reg_club_autre").strip()
+            elif club_selectionne == "Aucun club":
+                opt_club = ""
+            else:
+                opt_club = club_selectionne
+            # ------------------------------------------------------------------------
+
+            opt_telephone = st.text_input("N° de Téléphone (Facultatif)")
             
             if st.button("Créer mon compte"):
                 if reg_pseudo and reg_email and reg_password:
@@ -180,14 +202,22 @@ def afficher_espace_membres(db):
                         st.session_state["verification_code"] = str(random.randint(100000, 999999))
                         st.session_state["verifying_email"] = reg_pseudo
                         db.collection("users").document(reg_pseudo).set({
-                            "pseudo": reg_pseudo, "email": reg_email, "password": hash_password(reg_password),
-                            "email_verifie": False, "nom": opt_nom.strip(), "prenom": opt_prenom.strip(),
-                            "num_licence": opt_licence.strip(), "telephone": opt_telephone.strip(),
-                            "club": opt_club.strip(), "role": "membre", "premiere_connexion": True
+                            "pseudo": reg_pseudo, 
+                            "email": reg_email, 
+                            "password": hash_password(reg_password),
+                            "email_verifie": False, 
+                            "nom": opt_nom.strip(), 
+                            "prenom": opt_prenom.strip(),
+                            "num_licence": opt_licence.strip(), 
+                            "club": opt_club,  # Sauvegarde du club sélectionné ou saisi
+                            "telephone": opt_telephone.strip(),
+                            "role": "membre", 
+                            "premiere_connexion": True
                         })
                         st.rerun()
                 else:
                     st.error("Veuillez remplir les champs obligatoires.")
+
 
         # --- ONGLET 3 : MOT DE PASSE OUBLIÉ ---
         with tab_oublie:
