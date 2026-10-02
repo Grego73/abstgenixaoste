@@ -136,9 +136,8 @@ def verifier_session():
         st.session_state["verifying_email"] = None
 
 
-# 4. 🚀 SERVICE D'ENVOI REEL VIA L'API INTERNATIONALE RESEND (SANS BLOCAGE GMAIL/DNS)
+# 4. 🚀 SERVICE D'ENVOI REEL VIA L'API INTERNATIONALE RESEND (SANS BLOCAGE)
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
-    # La fonction garde le même nom pour s'emboîter sans modification dans auth.py et contact.py
     try:
         api_key = st.secrets["resend"]["api_key"]
         
@@ -148,8 +147,6 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
             "Content-Type": "application/json"
         }
         
-        # Resend fournit par défaut une adresse d'envoi sandbox gratuite ("onboarding@resend.dev") 
-        # qui fonctionne instantanément avec toutes les adresses de réception de test.
         payload = {
             "from": "Amicale Boule <onboarding@resend.dev>",
             "to": [destinataire_email],
@@ -157,12 +154,16 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
             "html": message_html
         }
         
+        # Encodage strict des données JSON
         data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        
+        # 🔄 RECTIFICATION : Passage de l'argument 'data' directement dans l'initialisation
+        # pour forcer la méthode HTTP POST attendue par Resend.
+        req = urllib.request.Request(url, data=data, headers=headers)
   
         with urllib.request.urlopen(req, timeout=5) as response:
             status_code = response.getcode()
-            if status_code == 200 or status_code == 201 or status_code == 202 or status_code == 204:
+            if status_code in (200, 201, 202, 204):
                 return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi réel de l'e-mail : {e}")
