@@ -2,6 +2,9 @@ import streamlit as st
 import hashlib
 import json
 import urllib.request
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # 1. VARIABLES GLOBALES DE L'AMICALE BOULE SAINT-GENIX AOSTE
 NOM_CLUB = "Amicale Boule Saint-Genix Aoste"
@@ -19,7 +22,7 @@ DONNEES_CARTE = {
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
 
-# 2. CLIENT WEB REST ENRICHI POUR S'ADAPTER À TOUTE L'APPLICATION
+# 2. CLIENT WEB REST POUR CONTOURNER gRPC
 class DocumentSimule:
     def __init__(self, data, exists=True):
         self._data = data
@@ -52,11 +55,9 @@ class DocumentRefSimule:
                         data_nettoyee[key] = val["booleanValue"]
                 return DocumentSimule(data_nettoyee, exists=True)
         except Exception:
-            # Si le document n'existe pas, Google renvoie une erreur HTTP 404
             return DocumentSimule({}, exists=False)
 
     def set(self, data):
-        # Conversion du dictionnaire Python au format JSON attendu par Firestore REST
         fields = {}
         for key, val in data.items():
             if isinstance(val, bool):
@@ -68,8 +69,6 @@ class DocumentRefSimule:
         
         payload = {"fields": fields}
         encoded_data = json.dumps(payload).encode("utf-8")
-        
-        # L'écriture REST dans Firestore nécessite l'ID du document en paramètre d'URL
         url_write = f"https://googleapis.com{self.project_id}/databases/(default)/documents/{self.collection_name}?documentId={self.doc_id}"
         try:
             req = urllib.request.Request(url_write, data=encoded_data, method="POST")
@@ -86,7 +85,6 @@ class CollectionSimulee:
         self.collection_name = collection_name
 
     def document(self, doc_id):
-        # 🎯 AJOUTÉ : Permet de cibler un document précis comme db.collection("users").document(reg_pseudo)
         return DocumentRefSimule(self.project_id, self.collection_name, doc_id)
 
     def get(self, timeout=None):
@@ -141,32 +139,25 @@ def verifier_session():
         st.session_state["verifying_email"] = None
 
 
-# 4. SERVICE D'E-MAILS BREVO
+# 4. SERVICE D'E-MAILS SÉCURISÉ VIA GMAIL
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
     try:
-        api_key = st.secrets["brevo"]["api_key"]
-        sender_email = st.secrets["brevo"]["sender_email"]
+        email_expediteur = st.secrets["gmail"]["adresse"]
+        mot_de_passe = st.secrets["gmail"]["mot_de_passe"]
         
-        url = "https://api.brevo.com/v3/smtp/email"
-        headers = {
-            "accept": "application/json",
-            "api-key": api_key,
-            "content-type": "application/json"
-        }
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = sujet
+        msg["From"] = f"Amicale Boule St-Genix Aoste <{email_expediteur}>"
+        msg["To"] = destinataire_email
         
-        payload = {
-            "sender": {"name": "Amicale Boule St-Genix Aoste", "email": sender_email},
-            "to": [{"email": destinataire_email}],
-            "subject": sujet,
-            "htmlContent": message_html
-        }
+        partie_html = MIMEText(message_html, "html")
+        msg.attach(partie_html)
         
-        data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-  
-        with urllib.request.urlopen(req) as response:
-            if response.status == 200 or response.status == 201 or response.status == 202 or response.status == 204:
-                return True
+        with smtplib.SMTP_SSL("://gmail.com", 465) as serveur:
+            serveur.login(email_expediteur, mot_de_passe)
+            serveur.sendmail(email_expediteur, destinataire_email, msg.as_string())
+            return True
+            
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
     return False
