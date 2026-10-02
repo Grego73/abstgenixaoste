@@ -9,7 +9,7 @@ def afficher_actualites(db):
     annee_fondation = 1922
     age_club = annee_actuelle - annee_fondation
     
-    # Définition correcte des onglets pour éviter le NameError
+    # Définition des onglets
     tab_palmares, tab_histoire, tab_concours = st.tabs([
         "✨ Palmarès & Exploits", 
         f"📜 Notre Histoire ({age_club} ans)", 
@@ -21,11 +21,10 @@ def afficher_actualites(db):
         st.subheader("🚀 Les performances de nos licenciés")
         
         try:
-            # Diagnostic pas à pas pour pister l'erreur Firebase
             st.info("🔍 Étape 1 : Tentative de ciblage de la collection 'palmares'...")
             palmares_ref = db.collection("palmares")
             
-            st.info("🔍 Étape 2 : Envoi de la requête de streaming à Firebase...")
+            st.info("🔍 Étape 2 : Envoi de la requête à Firebase (avec timeout)...")
             docs = palmares_ref.stream(timeout=10)
             
             st.info("🔍 Étape 3 : Lecture des documents reçus...")
@@ -73,7 +72,7 @@ def afficher_actualites(db):
         st.markdown("#### ➕ Événements programmés :")
         try:
             concours_ref = db.collection("concours")
-             docs = concours_ref.stream(timeout=10)
+            docs = concours_ref.stream(timeout=10)
             events_found = False
             for doc in docs:
                 events_found = True
