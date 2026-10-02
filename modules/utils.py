@@ -142,7 +142,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         api_key = st.secrets["brevo"]["api_key"]
         sender_email = st.secrets["brevo"]["sender_email"]
         
-        url = "https://brevo.com"
+        url = "https://api.brevo.com/v3/smtp/email"
         headers = {
             "accept": "application/json",
             "api-key": api_key,
