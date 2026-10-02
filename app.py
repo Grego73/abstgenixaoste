@@ -29,7 +29,7 @@ if st.session_state.get("is_admin", False):
 page = st.sidebar.radio("Navigation", liste_pages)
 
 # --- VERROU DE SÉCURITÉ OPTIMISÉ (PLUS DE BOUCLE INFINIE) ---
-if st.session_state.get("logged_in", False):
+if st.session_state.get("logged_in", False) and st.session_state.get("user_pseudo", ""):
     # Charge le profil une seule fois en mémoire de session pour soulager Firebase
     if "premiere_connexion" not in st.session_state:
         try:
