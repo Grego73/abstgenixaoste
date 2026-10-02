@@ -26,7 +26,7 @@ def afficher_actualites(db):
             palmares_ref = db.collection("palmares")
             
             st.info("🔍 Étape 2 : Envoi de la requête de streaming à Firebase...")
-            docs = palmares_ref.stream()
+            docs = palmares_ref.get()
             
             st.info("🔍 Étape 3 : Lecture des documents reçus...")
             palmares_trouve = False
@@ -73,7 +73,7 @@ def afficher_actualites(db):
         st.markdown("#### ➕ Événements programmés :")
         try:
             concours_ref = db.collection("concours")
-            docs = concours_ref.stream()
+            docs = concours_ref.get()
             events_found = False
             for doc in docs:
                 events_found = True
