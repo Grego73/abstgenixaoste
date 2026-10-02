@@ -71,13 +71,13 @@ def afficher_accueil():
             st.link_button(
                 "🗺️ Google Maps", 
                 f"https://google.com/maps?q={lat_sg},{lon_sg}", 
-                use_container_width=True
+                width='stretch'
             )
         with col_sg2:
             st.link_button(
                 "🚙 Waze", 
                 f"https://waze.com/fr/live-map/directions?to=ll.{lat_sg},{lon_sg}", 
-                use_container_width=True
+                width='stretch'
             )
         with col_sg3:
             st.text_input("Coordonnées GPS 1", value=coords_texte_sg, key="gps_sg", label_visibility="collapsed")
@@ -95,13 +95,13 @@ def afficher_accueil():
             st.link_button(
                 "🗺️ Google Maps", 
                 f"https://google.com/maps?q={lat_aos},{lon_aos}&dir_action=navigate", 
-                use_container_width=True
+                width='stretch'
             )
         with col_aos2:
             st.link_button(
                 "🚙 Waze", 
                 f"https://waze.com/fr/live-map/directions?to=ll.{lat_aos},{lon_aos}&navigate=yes", 
-                use_container_width=True
+                width='stretch'
             )
         with col_aos3:
             st.text_input("Coordonnées GPS 2", value=coords_texte_aos, key="gps_aos", label_visibility="collapsed")
