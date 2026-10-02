@@ -19,7 +19,7 @@ DONNEES_CARTE = {
 
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
-# 2. INITIALISATION DU CLIENT FIRESTORE SÉCURISÉ (MÉTHODE OFFICIELLE STREAMLIT)
+# 2. INITIALISATION DU CLIENT FIRESTORE SÉCURISÉ
 @st.cache_resource
 def initialiser_firebase():
     if "firebase" not in st.secrets:
@@ -27,12 +27,10 @@ def initialiser_firebase():
         st.stop()
         
     try:
-        # Copie et traitement propre des secrets
         fb_secrets = dict(st.secrets["firebase"])
         if "private_key" in fb_secrets:
             fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n").strip()
             
-        # Création directe d'un client Firestore sans passer par le package firebase_admin global
         db = firestore.Client.from_service_account_info(fb_secrets)
         return db
         
@@ -53,4 +51,32 @@ def verifier_session():
         st.session_state["verifying_email"] = None
 
 # 4. SERVICE D'E-MAILS BREVO SÉCURISÉ & STABLE
-
+def envoyer_email_brevo(destinataire_email, sujet, message_html):
+    try:
+        api_key = st.secrets["brevo"]["api_key"]
+        sender_email = st.secrets["brevo"]["sender_email"]
+        
+        url = "https://brevo.com"
+        headers = {
+            "accept": "application/json",
+            "api-key": api_key,
+            "content-type": "application/json"
+        }
+        
+        payload = {
+            "sender": {"name": "Amicale Boule St-Genix Aoste", "email": sender_email},
+            "to": [{"email": destinataire_email}],
+            "subject": sujet,
+            "htmlContent": message_html
+        }
+        
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+  
+        with urllib.request.urlopen(req) as response:
+            # Vérification des codes de succès standards sans utiliser de tableau
+            if response.status == 200 or response.status == 201 or response.status == 204:
+                return True
+    except Exception as e:
+        st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
+    return False
