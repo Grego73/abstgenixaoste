@@ -14,9 +14,9 @@ URL_FACEBOOK = "https://facebook.com"
 
 # Coordonnées géographiques pour la carte d'accès (Saint-Genix et Aoste)
 DONNEES_CARTE = {
-    "latitude": [45.5995592, 45.590435],
-    "longitude": [5.6297572, 5.606534],
-    "Nom du terrain": ["Jeux de La Glière (Saint-Genix)", "Terrains de boules d'Aoste"]
+    "latitude": (45.5995592, 45.590435),
+    "longitude": (5.6297572, 5.606534),
+    "Nom du terrain": ("Jeux de La Glière (Saint-Genix)", "Terrains de boules d'Aoste")
 }
 
 # URL de la boule lyonnaise strieuse demandée
