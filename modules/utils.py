@@ -136,12 +136,17 @@ def verifier_session():
         st.session_state["verifying_email"] = None
 
 
-# 4. 🚀 SERVICE D'ENVOI REEL VIA L'API INTERNATIONALE RESEND (SANS BLOCAGE)
+# Tout en haut de modules/utils.py, assurez-vous d'avoir cet import :
+import requests  # 👈 AJOUTEZ CET IMPORT TOUT EN HAUT DU FICHIER
+
+# ... (Laissez le reste du fichier intact : variables globales et client REST Firestore) ...
+
+# 4. 🚀 SERVICE D'ENVOI DE MESSAGES UNIVERSEL ET ILLIMITÉ VIA RESEND API
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
     try:
         api_key = st.secrets["resend"]["api_key"]
-        
         url = "https://resend.com"
+        
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -154,16 +159,15 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
             "html": message_html
         }
         
-        data = json.dumps(payload).encode("utf-8")
+        # 🎯 LA SOURCE DE LA FIABILITÉ : requests.post applique un POST pur et direct
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
         
-        # 🎯 FORCE STRICTEMENT LE POST POUR REPOUSSER L'ERREUR 405
-        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-  
-        with urllib.request.urlopen(req, timeout=5) as response:
-            status_code = response.getcode()
-            # Validation unitaire pour éviter toute troncature de texte
-            if status_code == 200 or status_code == 201 or status_code == 202 or status_code == 204:
-                return True
+        # Si le serveur renvoie un code de succès (200 à 299)
+        if response.status_code in [200, 201, 202, 204]:
+            return True
+        else:
+            st.error(f"❌ Rejet de l'API Resend (Code {response.status_code}) : {response.text}")
+            
     except Exception as e:
-        st.error(f"Erreur technique lors de l'envoi réel de l'e-mail : {e}")
+        st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
     return False
