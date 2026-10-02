@@ -1,9 +1,13 @@
+import os
 
-# Dans modules/utils.py
+# 🎯 FORÇAGE DU MODE REST AVANT TOUT IMPORT GOOGLE
+# Cette variable indique officiellement au SDK Python de couper gRPC et d'utiliser du HTTPS standard.
+os.environ["FIRESTORE_PREFER_REST"] = "True"
+
 import streamlit as st
 import firebase_admin
 from google.oauth2 import service_account
-from google.cloud import firestore as gc_firestore  # 👈 Nouvel import officiel
+from google.cloud import firestore as gc_firestore
 import hashlib
 import json
 import urllib.request
@@ -23,7 +27,7 @@ DONNEES_CARTE = {
 
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
-# 2. INITIALISATION DU CLIENT FIRESTORE EN MODE REST
+# 2. INITIALISATION DU CLIENT FIRESTORE EN MODE REST SÉCURISÉ
 @st.cache_resource
 def initialiser_firebase():
     if "firebase" not in st.secrets:
@@ -35,12 +39,11 @@ def initialiser_firebase():
         if "private_key" in fb_secrets:
             fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n")
         
-        # 🔑 Génération des accès Google Auth standard
+        # Authentification Google standard
         creds = service_account.Credentials.from_service_account_info(fb_secrets)
         
-        # 🎯 LE COMPOSANT MAGIQUE : transport="rest" 
-        # Force le SDK à utiliser de simples requêtes HTTPS au lieu du tunnel gRPC bloqué.
-        db = gc_firestore.Client(credentials=creds, project=fb_secrets["project_id"], transport="rest")
+        # 🔄 REVENU À LA CONSTRUTION NATIVE (La variable d'environnement gère le mode REST automatiquement)
+        db = gc_firestore.Client(credentials=creds, project=fb_secrets["project_id"])
         return db
         
     except Exception as e:
@@ -59,13 +62,13 @@ def verifier_session():
     if "verifying_email" not in st.session_state:
         st.session_state["verifying_email"] = None
 
-# 4. SERVICE D'E-MAILS BREVO
+# 4. SERVICE D'E-MAILS BREVO SÉCURISÉ
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
     try:
         api_key = st.secrets["brevo"]["api_key"]
         sender_email = st.secrets["brevo"]["sender_email"]
         
-        url = "https://brevo.com"
+        url = "https://api.brevo.com/v3/smtp/email"
         headers = {
             "accept": "application/json",
             "api-key": api_key,
@@ -81,7 +84,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-        
+  
         with urllib.request.urlopen(req) as response:
             if response.status in [200, 201, 202, 204]:
                 return True
