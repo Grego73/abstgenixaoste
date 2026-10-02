@@ -147,7 +147,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         api_key = st.secrets["brevo"]["api_key"]
         sender_email = st.secrets["brevo"]["sender_email"]
         
-        url = "https://brevo.com"
+        url = "https://api.brevo.com/v3/smtp/email"
         headers = {
             "accept": "application/json",
             "api-key": api_key,
@@ -165,7 +165,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
   
         with urllib.request.urlopen(req) as response:
-            if response.status == 200 or response.status == 201 or response.status == 204:
+            if response.status == 200 or response.status == 201 or response.status == 202 or response.status == 204:
                 return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
