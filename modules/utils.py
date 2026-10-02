@@ -2,9 +2,6 @@ import streamlit as st
 import hashlib
 import json
 import urllib.request
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 # 1. VARIABLES GLOBALES DE L'AMICALE BOULE SAINT-GENIX AOSTE
 NOM_CLUB = "Amicale Boule Saint-Genix Aoste"
@@ -22,7 +19,7 @@ DONNEES_CARTE = {
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
 
-# 2. CLIENT WEB REST POUR CONTOURNER gRPC
+# 2. CLIENT WEB REST COMPLET ET SÉCURISÉ (ZÉRO gRPC)
 class DocumentSimule:
     def __init__(self, data, exists=True):
         self._data = data
@@ -139,25 +136,33 @@ def verifier_session():
         st.session_state["verifying_email"] = None
 
 
-# 4. SERVICE D'E-MAILS SÉCURISÉ VIA GMAIL
+# 4. SERVICE D'E-MAILS VIA API WEB REST BREVO
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
     try:
-        email_expediteur = st.secrets["gmail"]["adresse"]
-        mot_de_passe = st.secrets["gmail"]["mot_de_passe"]
+        api_key = st.secrets["brevo"]["api_key"]
+        sender_email = st.secrets["brevo"]["sender_email"]
         
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = sujet
-        msg["From"] = f"Amicale Boule St-Genix Aoste <{email_expediteur}>"
-        msg["To"] = destinataire_email
+        url = "https://brevo.com"
+        headers = {
+            "accept": "application/json",
+            "api-key": api_key,
+            "content-type": "application/json"
+        }
         
-        partie_html = MIMEText(message_html, "html")
-        msg.attach(partie_html)
+        payload = {
+            "sender": {"name": "Amicale Boule St-Genix Aoste", "email": sender_email},
+            "to": [{"email": destinataire_email}],
+            "subject": sujet,
+            "htmlContent": message_html
+        }
         
-        with smtplib.SMTP_SSL("://gmail.com", 465) as serveur:
-            serveur.login(email_expediteur, mot_de_passe)
-            serveur.sendmail(email_expediteur, destinataire_email, msg.as_string())
-            return True
-            
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+  
+        with urllib.request.urlopen(req, timeout=5) as response:
+            status_code = response.getcode()
+            if status_code == 200 or status_code == 201 or status_code == 202 or status_code == 204:
+                return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
     return False
