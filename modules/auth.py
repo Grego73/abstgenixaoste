@@ -183,6 +183,7 @@ def afficher_espace_membres(db):
                         if c_existant and c_existant not in ["Aucun club", ""] and c_existant not in liste_clubs:
                             liste_clubs.append(c_existant)
             except Exception:
+                # En cas d'erreur ou si la base est vide, on garde la liste par défaut
                 pass
             
             clubs_tries = sorted([c for c in liste_clubs if c != "Aucun club"])
@@ -199,11 +200,11 @@ def afficher_espace_membres(db):
                 opt_club = ""
             else:
                 opt_club = club_selectionne
-            # -----------------------------------------------------------------
 
+            # --- LE CHAMP TÉLÉPHONE ET LE BOUTON SONT BIEN ICI ---
             opt_telephone = st.text_input("N° de Téléphone (Facultatif)")
             
-            if st.button("Créer mon compte"):
+            if st.button("Créer mon compte", type="primary"):
                 if reg_pseudo and reg_email and reg_password:
                     if db.collection("users").document(reg_pseudo).get().exists:
                         st.error("Pseudo déjà pris.")
