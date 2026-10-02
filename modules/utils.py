@@ -1,4 +1,4 @@
-python
+
 # Dans modules/utils.py
 import streamlit as st
 import firebase_admin
