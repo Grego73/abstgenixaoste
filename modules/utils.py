@@ -51,7 +51,7 @@ def verifier_session():
     if "verifying_email" not in st.session_state:
         st.session_state["verifying_email"] = None
 
-# 4. SERVICE DE NOTIFICATION ET D'ENVOI D'E-MAILS (BREVO API v3)
+# 4. SERVICE DE NOTIFICATION ET D'ENVOI D'E-MAILS (BREVO API v3) https://api.brevo.com/v3/smtp/email
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
     """Envoie un e-mail via l'API REST v3 de Brevo de façon sécurisée."""
     try:
@@ -59,7 +59,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         api_key = st.secrets["brevo"]["api_key"]
         sender_email = st.secrets["brevo"]["sender_email"]
         
-        url = "https://brevo.com"
+        url = "https://api.brevo.com/v3/smtp/email"
         headers = {
             "accept": "application/json",
             "api-key": api_key,
