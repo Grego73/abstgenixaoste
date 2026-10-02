@@ -23,22 +23,33 @@ DONNEES_CARTE = {
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
 # 2. INITIALISATION UNIQUE DE FIREBASE
+# Dans modules/utils.py
+
 def initialiser_firebase():
     try:
-        # Tente de récupérer l'application par défaut si elle existe déjà
-        firebase_admin.get_app()
+        # Tente de récupérer l'application existante
+        app = firebase_admin.get_app()
     except ValueError:
-        # Si get_app() lève une ValueError, cela signifie qu'elle n'existe pas encore. On l'initialise.
+        # Si elle n'existe pas, on l'initialise proprement
+        if "firebase" not in st.secrets:
+            st.error("❌ Les secrets Firebase sont introuvables dans st.secrets. Vérifiez votre fichier secrets.toml.")
+            st.stop()
+            
         try:
             fb_secrets = dict(st.secrets["firebase"])
             if "private_key" in fb_secrets:
+                # Nettoyage des sauts de ligne résiduels
                 fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n")
+            
             cred = credentials.Certificate(fb_secrets)
-            firebase_admin.initialize_app(cred)
+            app = firebase_admin.initialize_app(cred)
         except Exception as e:
-            st.error(f"Erreur de configuration Firebase : {e}")
+            st.error(f"❌ Erreur lors de la lecture des identifiants Firebase : {e}")
             st.stop()
-    return firestore.client()
+            
+    # On force le client Firestore à utiliser l'application spécifiquement initialisée avec vos credentials
+    return firestore.client(app=app)
+
 # 3. GESTION DES SESSIONS ET DE LA SÉCURITÉ
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
