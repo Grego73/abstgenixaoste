@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 import hashlib
-from modules.utils import envoyer_email_brevo
+from modules.utils import envoyer_email_brevo, hash_password
 
 # 1. FONCTION TECHNIQUE DE SÉCURITÉ
 def hash_password(password):
