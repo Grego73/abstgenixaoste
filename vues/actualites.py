@@ -25,8 +25,8 @@ def afficher_actualites(db):
             palmares_ref = db.collection("palmares")
             
             st.info("🔍 Étape 2 : Récupération immédiate du bloc de données...")
-            # 🔄 CORRECTION : .get() télécharge tout d'un coup instantanément sans flux continu
-            docs = palmares_ref.get() 
+            # 🎯 AJOUT D'UN TIMEOUT DE 5 SECONDES POUR BRISER LE CHARGEMENT INFINI
+            docs = palmares_ref.get(timeout=5) 
             
             st.info("🔍 Étape 3 : Affichage des résultats...")
             palmares_trouve = False
@@ -47,7 +47,6 @@ def afficher_actualites(db):
                 
         except Exception as e:
             st.error(f"⚠️ Erreur technique lors du chargement des palmarès : {e}")
-
     # --- ONGLET 2 : HISTOIRE ---
     with tab_histoire:
         st.subheader("🌍 L'Âge d'Or Mondial : La Quadrette Roissard / Pioz")
@@ -62,7 +61,7 @@ def afficher_actualites(db):
             
         st.info("📊 Le club comptabilise plus de 40 participations officielles aux phases finales des Championnats de France.")
 
-    # --- ONGLET 3 : CONCOURS ---
+# --- ONGLET 3 : CONCOURS ---
     with tab_concours:
         st.subheader("📅 Événements Officiels")
         
@@ -73,10 +72,10 @@ def afficher_actualites(db):
         st.markdown("#### ➕ Événements programmés :")
         try:
             concours_ref = db.collection("concours")
-            # 🔄 CORRECTION ICI AUSSI : On repasse sur un .get() propre
-            docs = concours_ref.get()
+            # 🎯 TIMEOUT ICI AUSSI
+            docs = concours_ref.get(timeout=5)
             events_found = False
-            for doc in docs:
+            for doc in doc in docs:
                 events_found = True
                 data = doc.to_dict()
                 st.markdown(f"🔹 **{data.get('nom')}**")
