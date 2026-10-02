@@ -1,3 +1,6 @@
+import os
+os.environ["GRPC_DNS_RESOLVER"] = "native"
+os.environ["GOOGLE_CLOUD_DISABLE_GRPC"] = "true"
 import streamlit as st
 import pandas as pd
 from modules.utils import initialiser_firebase, verifier_session, NOM_CLUB
