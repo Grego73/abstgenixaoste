@@ -1,8 +1,5 @@
 import streamlit as st
-import firebase_admin
-from google.oauth2 import service_account
-from google.cloud import firestore as gc_firestore
-from google.cloud.firestore_v1.services.firestore.transports.rest import FirestoreRestTransport
+from google.cloud import firestore
 import hashlib
 import json
 import urllib.request
@@ -22,7 +19,7 @@ DONNEES_CARTE = {
 
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
-# 2. INITIALISATION DU CLIENT FIRESTORE EN PUR MODE HTTP / REST
+# 2. INITIALISATION DU CLIENT FIRESTORE SÉCURISÉ (MÉTHODE OFFICIELLE STREAMLIT)
 @st.cache_resource
 def initialiser_firebase():
     if "firebase" not in st.secrets:
@@ -30,20 +27,17 @@ def initialiser_firebase():
         st.stop()
         
     try:
+        # Copie et traitement propre des secrets
         fb_secrets = dict(st.secrets["firebase"])
         if "private_key" in fb_secrets:
-            fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n")
-        
-        # Authentification Google standard
-        creds = service_account.Credentials.from_service_account_info(fb_secrets)
-        
-        # 🎯 LE VRAI FIX REST : On force explicitement le transport HTTP/REST au lieu de gRPC
-        transport_rest = FirestoreRestTransport(credentials=creds)
-        db = gc_firestore.Client(credentials=creds, project=fb_secrets["project_id"], _http=transport_rest._http)
+            fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n").strip()
+            
+        # Création directe d'un client Firestore sans passer par le package firebase_admin global
+        db = firestore.Client.from_service_account_info(fb_secrets)
         return db
         
     except Exception as e:
-        st.error(f"❌ Erreur lors de l'initialisation de Firestore : {e}")
+        st.error(f"❌ Erreur lors de l'initialisation directe de Firestore : {e}")
         st.stop()
 
 # 3. GESTION DES SESSIONS ET DE LA SÉCURITÉ
@@ -58,13 +52,13 @@ def verifier_session():
     if "verifying_email" not in st.session_state:
         st.session_state["verifying_email"] = None
 
-# 4. SERVICE D'E-MAILS BREVO SÉCURISÉ
+# 4. SERVICE D'E-MAILS BREVO SÉCURISÉ & STABLE
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
     try:
         api_key = st.secrets["brevo"]["api_key"]
         sender_email = st.secrets["brevo"]["sender_email"]
         
-        url = "https://api.brevo.com/v3/smtp/email"
+        url = "https://brevo.com"
         headers = {
             "accept": "application/json",
             "api-key": api_key,
@@ -82,7 +76,8 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
   
         with urllib.request.urlopen(req) as response:
-            if response.status in [200, 201, 202, 204]:
+            # Validation propre des codes de succès standards (200, 201, 202)
+            if response.status in [200, 201, 202]:
                 return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
