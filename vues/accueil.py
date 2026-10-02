@@ -4,29 +4,27 @@ import os
 from modules.utils import NOM_CLUB, STATUT_CLUB, ADRESSE_SIEGE, BOULODROMES, URL_FACEBOOK, DONNEES_CARTE
 
 def afficher_accueil():
-    # 1. EN-TÊTE : Gestion propre du logo (local ou racine en secours)
+    # 1. EN-TÊTE : Gestion propre du logo
     path_logo = "assets/logo_club.png"
     if not os.path.exists(path_logo):
-        path_logo = "logo_club.png" # Secours si mis à la racine
+        path_logo = "logo_club.png"
     
     col_l1, col_l2, col_l3 = st.columns(3)
-    with col_l2: # Centre le logo
+    with col_l2:
         if os.path.exists(path_logo):
-            st.image(path_logo, use_container_width=True)
+            st.image(path_logo, width='stretch')
         else:
             st.markdown("<h1 style='text-align: center; font-size: 70px; margin: 0;'>🏆</h1>", unsafe_allow_html=True)
 
-    # Titres et sous-titres centrés en HTML
     st.markdown(f"<h1 style='text-align: center; margin-top: 0;'>{NOM_CLUB}</h1>", unsafe_allow_html=True)
     st.markdown(f"<p style='text-align: center; font-style: italic; color: gray;'>{STATUT_CLUB}</p>", unsafe_allow_html=True)
     st.markdown("---")
 
-    # 2. SÉPARATION EN ONGLETS POUR ALLÉGER LA PAGE
+    # 2. ONGLETS DE L'ACCUEIL (Bien indentés dans la fonction)
     tab_presentation, tab_histoire, tab_acces = st.tabs([
         "📍 Présentation & Infos", "📜 Notre Histoire", "🚗 Accès & GPS"
     ])
 
-    # --- Onglet 1 : Informations Générales ---
     with tab_presentation:
         with st.container(border=True):
             st.markdown("### 🎯 Notre Mission")
@@ -35,35 +33,23 @@ def afficher_accueil():
                 "la pratique et le rayonnement du sport-boules (Boule Lyonnaise) sur les territoires de "
                 "Saint-Genix-les-Villages (Savoie) et d'Aoste (Isère)."
             )
-            
             st.markdown("### 🏠 Coordonnées")
             st.write(f"**Siège social :** {ADRESSE_SIEGE}")
             st.write(f"**Lieux d'entraînement et compétitions :** {BOULODROMES}")
-            
             st.markdown(f"🔗 *Suivez notre actualité en direct sur notre [Page Facebook Officielle]({URL_FACEBOOK}).*")
 
-    # --- Onglet 2 : Histoire & Palmarès ---
     with tab_histoire:
         st.markdown("### 📜 Un Club Centenaire au Riche Passé")
         st.write(
-            "L'événement marquant de notre histoire récente reste la célébration de notre **centenaire**, "
-            "orchestrée avec ferveur en **juillet 2022**. C’est à cette occasion mémorable que notre association "
-            "locale a soufflé ses **100 bougies**, entourée de ses membres actifs, de ses fidèles bénévoles et de ses partenaires."
+            "L'événement marquant de notre histoire récente reste la célébration de notre centenaire, "
+            "orchestrée avec ferveur en juillet 2022. C’est à cette occasion mémorable que notre association "
+            "locale a soufflé ses 100 bougies."
         )
-        
-        path_photo = "assets/photo_centenaire.jpg"
-        if os.path.exists(path_photo):
-            st.image(path_photo, caption="Célébration du centenaire du club (Juillet 2022)", use_container_width=True)
-            
-        st.markdown("#### ✨ Un Palmarès d'Exception")
-        
         col_m1, col_m2 = st.columns(2)
         with col_m1:
             st.metric(label="Participations au Championnat de France", value="~40 🇨🇵")
         with col_m2:
             st.metric(label="Titres cumulés", value="Multiples 🏆", delta="Savoie & Région")
-            
-        st.info("💡 À l'image des qualifications régulières de nos équipes en simple, double ou quadrette.")
 
     # --- Onglet 3 : Carte Interactive & Guidage GPS ---
     with tab_acces:
