@@ -24,7 +24,7 @@ URL_BOULE_IMAGE = "https://taboulot.fr"
 
 # 2. INITIALISATION UNIQUE DE FIREBASE
 # Dans modules/utils.py
-
+@st.cache_resource
 def initialiser_firebase():
     try:
         # Tente de récupérer l'application existante
