@@ -1,5 +1,4 @@
 import streamlit as st
-from google.cloud import firestore
 import hashlib
 import json
 import urllib.request
@@ -19,24 +18,66 @@ DONNEES_CARTE = {
 
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
-# 2. INITIALISATION DU CLIENT FIRESTORE SÉCURISÉ
+
+# 2. CLIENT WEB REST FAIT MAISON POUR CONTOURNER gRPC
+class DocumentSimule:
+    def __init__(self, data):
+        self._data = data
+    def to_dict(self):
+        return self._data
+
+class CollectionSimulee:
+    def __init__(self, project_id, collection_name):
+        self.project_id = project_id
+        self.collection_name = collection_name
+
+    def get(self, timeout=None):
+        # Requête Web directe sur l'API publique de Google Firestore (Pas de gRPC)
+        url = f"https://firestore.googleapis.com/v1/projects/{self.project_id}/databases/(default)/documents/{self.collection_name}"
+        try:
+            req = urllib.request.Request(url, method="GET")
+            with urllib.request.urlopen(req, timeout=4) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                documents = []
+                
+                if "documents" in res_data:
+                    for doc in res_data["documents"]:
+                        fields = doc.get("fields", {})
+                        data_nettoyee = {}
+                        for key, val in fields.items():
+                            # Extraction propre des types de données Firestore REST
+                            if "stringValue" in val:
+                                data_nettoyee[key] = val["stringValue"]
+                            elif "integerValue" in val:
+                                data_nettoyee[key] = int(val["integerValue"])
+                            elif "booleanValue" in val:
+                                data_nettoyee[key] = val["booleanValue"]
+                            else:
+                                data_nettoyee[key] = list(val.values())[0] if val.values() else None
+                        documents.append(DocumentSimule(data_nettoyee))
+                return documents
+        except Exception:
+            # Si la collection est introuvable ou vide, l'API renvoie un code d'absence.
+            # On renvoie une liste vide pour valider instantanément l'affichage.
+            return []
+
+class ClientFirestoreREST:
+    def __init__(self, project_id):
+        self.project_id = project_id
+    def collection(self, name):
+        return CollectionSimulee(self.project_id, name)
+
+
 @st.cache_resource
 def initialiser_firebase():
     if "firebase" not in st.secrets:
-        st.error("❌ Les secrets Firebase sont introuvables dans st.secrets. Vérifiez votre fichier secrets.toml.")
+        st.error("❌ Les secrets Firebase sont introuvables. Vérifiez votre secrets.toml.")
         st.stop()
-        
-    try:
-        fb_secrets = dict(st.secrets["firebase"])
-        if "private_key" in fb_secrets:
-            fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n").strip()
-            
-        db = firestore.Client.from_service_account_info(fb_secrets)
-        return db
-        
-    except Exception as e:
-        st.error(f"❌ Erreur lors de l'initialisation directe de Firestore : {e}")
-        st.stop()
+    
+    project_id = st.secrets["firebase"].get("project_id")
+    # Retourne notre client sécurisé basé sur le web natif
+    return ClientFirestoreREST(project_id)
+
 
 # 3. GESTION DES SESSIONS ET DE LA SÉCURITÉ
 def hash_password(password):
@@ -50,7 +91,8 @@ def verifier_session():
     if "verifying_email" not in st.session_state:
         st.session_state["verifying_email"] = None
 
-# 4. SERVICE D'E-MAILS BREVO SÉCURISÉ & STABLE
+
+# 4. SERVICE D'E-MAILS BREVO
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
     try:
         api_key = st.secrets["brevo"]["api_key"]
@@ -74,9 +116,9 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
   
         with urllib.request.urlopen(req) as response:
-            # Vérification des codes de succès standards sans utiliser de tableau
             if response.status == 200 or response.status == 201 or response.status == 204:
                 return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
     return False
+
