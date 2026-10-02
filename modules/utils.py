@@ -24,7 +24,11 @@ URL_BOULE_IMAGE = "https://taboulot.fr"
 
 # 2. INITIALISATION UNIQUE DE FIREBASE
 def initialiser_firebase():
-    if not firebase_admin._apps:
+    try:
+        # Tente de récupérer l'application par défaut si elle existe déjà
+        firebase_admin.get_app()
+    except ValueError:
+        # Si get_app() lève une ValueError, cela signifie qu'elle n'existe pas encore. On l'initialise.
         try:
             fb_secrets = dict(st.secrets["firebase"])
             if "private_key" in fb_secrets:
@@ -35,7 +39,6 @@ def initialiser_firebase():
             st.error(f"Erreur de configuration Firebase : {e}")
             st.stop()
     return firestore.client()
-
 # 3. GESTION DES SESSIONS ET DE LA SÉCURITÉ
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
