@@ -1,6 +1,9 @@
+python
+# Dans modules/utils.py
 import streamlit as st
 import firebase_admin
-from firebase_admin import credentials, firestore
+from google.oauth2 import service_account
+from google.cloud import firestore as gc_firestore  # 👈 Nouvel import officiel
 import hashlib
 import json
 import urllib.request
@@ -12,43 +15,37 @@ ADRESSE_SIEGE = "Café Gojon, Rue des Juifs, 73240 Saint-Genix-les-Villages"
 BOULODROMES = "Jeux de La Glière (Saint-Genix) & Terrains d'Aoste"
 URL_FACEBOOK = "https://facebook.com"
 
-# Coordonnées géographiques pour la carte d'accès (Saint-Genix et Aoste)
 DONNEES_CARTE = {
     "latitude": (45.5995592, 45.590435),
     "longitude": (5.6297572, 5.606534),
     "Nom du terrain": ("Jeux de La Glière (Saint-Genix)", "Terrains de boules d'Aoste")
 }
 
-# URL de la boule lyonnaise strieuse demandée
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
-# 2. INITIALISATION UNIQUE DE FIREBASE
-# Dans modules/utils.py
+# 2. INITIALISATION DU CLIENT FIRESTORE EN MODE REST
 @st.cache_resource
 def initialiser_firebase():
+    if "firebase" not in st.secrets:
+        st.error("❌ Les secrets Firebase sont introuvables dans st.secrets. Vérifiez votre fichier secrets.toml.")
+        st.stop()
+        
     try:
-        # Tente de récupérer l'application existante
-        app = firebase_admin.get_app()
-    except ValueError:
-        # Si elle n'existe pas, on l'initialise proprement
-        if "firebase" not in st.secrets:
-            st.error("❌ Les secrets Firebase sont introuvables dans st.secrets. Vérifiez votre fichier secrets.toml.")
-            st.stop()
-            
-        try:
-            fb_secrets = dict(st.secrets["firebase"])
-            if "private_key" in fb_secrets:
-                # Nettoyage des sauts de ligne résiduels
-                fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n")
-            
-            cred = credentials.Certificate(fb_secrets)
-            app = firebase_admin.initialize_app(cred)
-        except Exception as e:
-            st.error(f"❌ Erreur lors de la lecture des identifiants Firebase : {e}")
-            st.stop()
-            
-    # On force le client Firestore à utiliser l'application spécifiquement initialisée avec vos credentials
-    return firestore.client(app=app)
+        fb_secrets = dict(st.secrets["firebase"])
+        if "private_key" in fb_secrets:
+            fb_secrets["private_key"] = fb_secrets["private_key"].replace("\\n", "\n")
+        
+        # 🔑 Génération des accès Google Auth standard
+        creds = service_account.Credentials.from_service_account_info(fb_secrets)
+        
+        # 🎯 LE COMPOSANT MAGIQUE : transport="rest" 
+        # Force le SDK à utiliser de simples requêtes HTTPS au lieu du tunnel gRPC bloqué.
+        db = gc_firestore.Client(credentials=creds, project=fb_secrets["project_id"], transport="rest")
+        return db
+        
+    except Exception as e:
+        st.error(f"❌ Erreur lors de l'initialisation de Firestore en mode REST : {e}")
+        st.stop()
 
 # 3. GESTION DES SESSIONS ET DE LA SÉCURITÉ
 def hash_password(password):
@@ -62,15 +59,13 @@ def verifier_session():
     if "verifying_email" not in st.session_state:
         st.session_state["verifying_email"] = None
 
-# 4. SERVICE DE NOTIFICATION ET D'ENVOI D'E-MAILS (BREVO API v3) https://api.brevo.com/v3/smtp/email
+# 4. SERVICE D'E-MAILS BREVO
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
-    """Envoie un e-mail via l'API REST v3 de Brevo de façon sécurisée."""
     try:
-        # Récupération des secrets configurés dans Streamlit
         api_key = st.secrets["brevo"]["api_key"]
         sender_email = st.secrets["brevo"]["sender_email"]
         
-        url = "https://api.brevo.com/v3/smtp/email"
+        url = "https://brevo.com"
         headers = {
             "accept": "application/json",
             "api-key": api_key,
@@ -88,7 +83,6 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
         
         with urllib.request.urlopen(req) as response:
-            # Code HTTP de succès pour Brevo (201 Created)
             if response.status in [200, 201, 202]:
                 return True
     except Exception as e:
