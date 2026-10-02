@@ -24,10 +24,11 @@ def afficher_actualites(db):
             st.info("🔍 Étape 1 : Tentative de ciblage de la collection 'palmares'...")
             palmares_ref = db.collection("palmares")
             
-            st.info("🔍 Étape 2 : Envoi de la requête à Firebase (avec timeout)...")
-            docs = palmares_ref.stream(timeout=10)
+            st.info("🔍 Étape 2 : Récupération immédiate du bloc de données...")
+            # 🔄 CORRECTION : .get() télécharge tout d'un coup instantanément sans flux continu
+            docs = palmares_ref.get() 
             
-            st.info("🔍 Étape 3 : Lecture des documents reçus...")
+            st.info("🔍 Étape 3 : Affichage des résultats...")
             palmares_trouve = False
             
             for doc in docs:
@@ -72,7 +73,8 @@ def afficher_actualites(db):
         st.markdown("#### ➕ Événements programmés :")
         try:
             concours_ref = db.collection("concours")
-            docs = concours_ref.stream(timeout=10)
+            # 🔄 CORRECTION ICI AUSSI : On repasse sur un .get() propre
+            docs = concours_ref.get()
             events_found = False
             for doc in docs:
                 events_found = True
