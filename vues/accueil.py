@@ -13,7 +13,7 @@ def afficher_accueil():
     col_l1, col_l2, col_l3 = st.columns(3)
     with col_l2:
         if os.path.exists(path_logo):
-            st.image(path_logo, width='stretch')
+            st.image(path_logo, use_container_width=True)
         else:
             st.markdown("<h1 style='text-align: center; font-size: 70px; margin: 0;'>🏆</h1>", unsafe_allow_html=True)
 
