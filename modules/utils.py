@@ -83,7 +83,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
         
         with urllib.request.urlopen(req) as response:
-            if response.status in [200, 201, 202]:
+            if response.status in [200, 201, 202, 204]:
                 return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
