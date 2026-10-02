@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from modules.utils import initialiser_firebase, verifier_session, NOM_CLUB
 
+# 🔐 Configuration de la page (DOIT ÊTRE LA PREMIÈRE INSTRUCTION STREAMLIT)
+st.set_page_config(page_title=NOM_CLUB, page_icon="🏆", layout="centered")
+
 # 🔐 Import du module technique d'authentification
 from modules.auth import afficher_espace_membres
 
@@ -17,8 +20,6 @@ verifier_session()
 
 if "is_admin" not in st.session_state:
     st.session_state["is_admin"] = False
-
-st.set_page_config(page_title=NOM_CLUB, page_icon="🏆", layout="centered")
 
 # Construction dynamique de la barre de navigation personnalisée
 liste_pages = ["Accueil", "La Vie du Club & Concours", "Contact", "🔑 Espace Membres"]
@@ -64,7 +65,7 @@ if st.session_state.get("logged_in", False):
         st.info("👉 Rendez-vous sur l'onglet **🔑 Espace Membres** dans le menu de gauche pour débloquer le site.")
         st.stop()
 
-# --- ROUTAGE DES PAGES ---
+# --- ROUTAGE DES PAGES STRICT ---
 if page == "Accueil":
     afficher_accueil()
 
