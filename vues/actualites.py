@@ -1,11 +1,20 @@
 import streamlit as st
+from datetime import datetime
 
 def afficher_actualites(db):
     st.title("🏆 Résultats & Vie du Club")
     st.markdown("---")
     
+    # --- CALCUL DYNAMIQUE DE L'ÂGE DU CLUB ---
+    annee_actuelle = datetime.now().year
+    annee_fondation = 1922
+    age_club = annee_actuelle - annee_fondation
+    
+    # Intégration de la variable dynamique dans le titre de l'onglet
     tab_palmares, tab_histoire, tab_concours = st.tabs([
-        "✨ Palmarès & Exploits", "📜 Notre Histoire (120 ans)", "📅 Concours du Club"
+        "✨ Palmarès & Exploits", 
+        f"📜 Notre Histoire ({age_club} ans)", 
+        "📅 Concours du Club"
     ])
     
     # --- ONGLET 1 : PALMARÈS DYNAMIQUE DES JOUEURS (DEPUIS FIREBASE) ---
@@ -21,7 +30,6 @@ def afficher_actualites(db):
                 palmares_trouve = True
                 data = doc.to_dict()
                 
-                # Rendu visuel propre sous forme de carte pour chaque exploit
                 with st.container(border=True):
                     st.markdown(f"##### {data.get('titre')}")
                     st.write(f"**Joueur(s) / Équipe :** {data.get('joueurs')}")
@@ -35,12 +43,13 @@ def afficher_actualites(db):
         except Exception:
             st.caption("Base de données des palmarès en attente d'éléments.")
 
-    # --- ONGLET 2 : LA LÉGENDE DU CLUB (IMMUABLE) ---
+    # --- ONGLET 2 : LA LÉGENDE DU CLUB (IMMUABLE AVEC VARIABLES COMPORTEMENTALES) ---
     with tab_histoire:
         st.subheader("🌍 L'Âge d'Or Mondial : La Quadrette Roissard / Pioz")
         st.write(
-            "Fondée originellement en **1922**, l'association a fêté son centenaire en 2022. "
-            "Le repère absolu de l'histoire du club reste l'enfant du pays né en 1923 : **Joseph Pioz**."
+            f"Fondée originellement en **{annee_fondation}**, l'association célèbre aujourd'hui ses **{age_club} ans** "
+            f"d'histoire sportive ininterrompue. Ancrée dans le berceau de la boule lyonnaise, elle reste la fierté "
+            f"de notre territoire."
         )
         
         with st.container(border=True):
