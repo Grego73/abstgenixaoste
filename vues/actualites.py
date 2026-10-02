@@ -9,6 +9,7 @@ def afficher_actualites(db):
     annee_fondation = 1922
     age_club = annee_actuelle - annee_fondation
     
+    # Définition correcte des onglets pour éviter le NameError
     tab_palmares, tab_histoire, tab_concours = st.tabs([
         "✨ Palmarès & Exploits", 
         f"📜 Notre Histoire ({age_club} ans)", 
@@ -16,27 +17,17 @@ def afficher_actualites(db):
     ])
     
     # --- ONGLET 1 : PALMARÈS DYNAMIQUE ---
-# Dans vues/actualites.py
-
-def afficher_actualites(db):
-    st.title("🏆 Résultats & Vie du Club")
-    st.markdown("---")
-    
-    # ... (Conservez vos onglets existants) ...
-    
     with tab_palmares:
         st.subheader("🚀 Les performances de nos licenciés")
         
         try:
-            # 🔍 MESSAGE DE DIAGNOSTIC 1
-            st.info("🔍 Étape 1 : Tentative de connexion à la collection 'palmares'...")
+            # Diagnostic pas à pas pour pister l'erreur Firebase
+            st.info("🔍 Étape 1 : Tentative de ciblage de la collection 'palmares'...")
             palmares_ref = db.collection("palmares")
             
-            # 🔍 MESSAGE DE DIAGNOSTIC 2
             st.info("🔍 Étape 2 : Envoi de la requête de streaming à Firebase...")
             docs = palmares_ref.stream()
             
-            # 🔍 MESSAGE DE DIAGNOSTIC 3
             st.info("🔍 Étape 3 : Lecture des documents reçus...")
             palmares_trouve = False
             
@@ -48,7 +39,9 @@ def afficher_actualites(db):
                     st.markdown(f"##### {data.get('titre')}")
                     st.write(f"**Joueur(s) / Équipe :** {data.get('joueurs')}")
                     st.write(data.get('description'))
-                    
+                    if data.get('categorie'):
+                        st.caption(f"Division / Catégorie : {data.get('categorie')}")
+                        
             if not palmares_trouve:
                 st.info("Aucun palmarès moderne n'a encore été encodé par le secrétariat.")
                 
