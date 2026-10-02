@@ -136,24 +136,25 @@ def verifier_session():
         st.session_state["verifying_email"] = None
 
 
-# 4. SERVICE D'E-MAILS VIA API WEB REST BREVO
+# 4. 🚀 SERVICE D'ENVOI REEL VIA L'API INTERNATIONALE RESEND (SANS BLOCAGE GMAIL/DNS)
 def envoyer_email_brevo(destinataire_email, sujet, message_html):
+    # La fonction garde le même nom pour s'emboîter sans modification dans auth.py et contact.py
     try:
-        api_key = st.secrets["brevo"]["api_key"]
-        sender_email = st.secrets["brevo"]["sender_email"]
+        api_key = st.secrets["resend"]["api_key"]
         
-        url = "https://api.brevo.com/v3/smtp/email"
+        url = "https://resend.com"
         headers = {
-            "accept": "application/json",
-            "api-key": api_key,
-            "content-type": "application/json"
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
         }
         
+        # Resend fournit par défaut une adresse d'envoi sandbox gratuite ("onboarding@resend.dev") 
+        # qui fonctionne instantanément avec toutes les adresses de réception de test.
         payload = {
-            "sender": {"name": "Amicale Boule St-Genix Aoste", "email": sender_email},
-            "to": [{"email": destinataire_email}],
+            "from": "Amicale Boule <onboarding@resend.dev>",
+            "to": [destinataire_email],
             "subject": sujet,
-            "htmlContent": message_html
+            "html": message_html
         }
         
         data = json.dumps(payload).encode("utf-8")
@@ -161,8 +162,8 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
   
         with urllib.request.urlopen(req, timeout=5) as response:
             status_code = response.getcode()
-            if status_code == 200 or status_code == 201 or status_code == 202 or status_code == 204:
+            if status_code == 200 or status_code == 201 or status_code == 202:
                 return True
     except Exception as e:
-        st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
+        st.error(f"Erreur technique lors de l'envoi réel de l'e-mail : {e}")
     return False
