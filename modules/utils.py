@@ -154,16 +154,15 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
             "html": message_html
         }
         
-        # Encodage strict des données JSON
         data = json.dumps(payload).encode("utf-8")
         
-        # 🔄 RECTIFICATION : Passage de l'argument 'data' directement dans l'initialisation
-        # pour forcer la méthode HTTP POST attendue par Resend.
-        req = urllib.request.Request(url, data=data, headers=headers)
+        # 🎯 FORCE STRICTEMENT LE POST POUR REPOUSSER L'ERREUR 405
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
   
         with urllib.request.urlopen(req, timeout=5) as response:
             status_code = response.getcode()
-            if status_code in (200, 201, 202, 204):
+            # Validation unitaire pour éviter toute troncature de texte
+            if status_code == 200 or status_code == 201 or status_code == 202 or status_code == 204:
                 return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi réel de l'e-mail : {e}")
