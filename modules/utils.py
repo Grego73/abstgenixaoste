@@ -53,32 +53,4 @@ def verifier_session():
         st.session_state["verifying_email"] = None
 
 # 4. SERVICE D'E-MAILS BREVO SÉCURISÉ & STABLE
-def envoyer_email_brevo(destinataire_email, sujet, message_html):
-    try:
-        api_key = st.secrets["brevo"]["api_key"]
-        sender_email = st.secrets["brevo"]["sender_email"]
-        
-        url = "https://brevo.com"
-        headers = {
-            "accept": "application/json",
-            "api-key": api_key,
-            "content-type": "application/json"
-        }
-        
-        payload = {
-            "sender": {"name": "Amicale Boule St-Genix Aoste", "email": sender_email},
-            "to": [{"email": destinataire_email}],
-            "subject": sujet,
-            "htmlContent": message_html
-        }
-        
-        data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-  
-        with urllib.request.urlopen(req) as response:
-            # Validation propre des codes de succès standards (200, 201, 202)
-            if response.status in [200, 201, 202]:
-                return True
-    except Exception as e:
-        st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
-    return False
+
