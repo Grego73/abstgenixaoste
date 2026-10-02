@@ -159,11 +159,11 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
             "html": message_html
         }
         
-        # 🎯 LA SOURCE DE LA FIABILITÉ : requests.post applique un POST pur et direct
+        # Envoi de la requête POST via la bibliothèque requests
         response = requests.post(url, json=payload, headers=headers, timeout=10)
         
-        # Si le serveur renvoie un code de succès (200 à 299)
-        if response.status_code in [200, 201, 202, 204]:
+        # ✅ CORRECTION DE LA SYNTAXE : Validation directe du statut de succès
+        if response.status_code == 200 or response.status_code == 201 or response.status_code == 202:
             return True
         else:
             st.error(f"❌ Rejet de l'API Resend (Code {response.status_code}) : {response.text}")
