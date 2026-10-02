@@ -1,13 +1,8 @@
-import os
-
-# 🎯 FORÇAGE DU MODE REST AVANT TOUT IMPORT GOOGLE
-# Cette variable indique officiellement au SDK Python de couper gRPC et d'utiliser du HTTPS standard.
-os.environ["FIRESTORE_PREFER_REST"] = "True"
-
 import streamlit as st
 import firebase_admin
 from google.oauth2 import service_account
 from google.cloud import firestore as gc_firestore
+from google.cloud.firestore_v1.services.firestore.transports.rest import FirestoreRestTransport
 import hashlib
 import json
 import urllib.request
@@ -27,7 +22,7 @@ DONNEES_CARTE = {
 
 URL_BOULE_IMAGE = "https://taboulot.fr"
 
-# 2. INITIALISATION DU CLIENT FIRESTORE EN MODE REST SÉCURISÉ
+# 2. INITIALISATION DU CLIENT FIRESTORE EN PUR MODE HTTP / REST
 @st.cache_resource
 def initialiser_firebase():
     if "firebase" not in st.secrets:
@@ -42,12 +37,13 @@ def initialiser_firebase():
         # Authentification Google standard
         creds = service_account.Credentials.from_service_account_info(fb_secrets)
         
-        # 🔄 REVENU À LA CONSTRUTION NATIVE (La variable d'environnement gère le mode REST automatiquement)
-        db = gc_firestore.Client(credentials=creds, project=fb_secrets["project_id"])
+        # 🎯 LE VRAI FIX REST : On force explicitement le transport HTTP/REST au lieu de gRPC
+        transport_rest = FirestoreRestTransport(credentials=creds)
+        db = gc_firestore.Client(credentials=creds, project=fb_secrets["project_id"], _http=transport_rest._http)
         return db
         
     except Exception as e:
-        st.error(f"❌ Erreur lors de l'initialisation de Firestore en mode REST : {e}")
+        st.error(f"❌ Erreur lors de l'initialisation de Firestore : {e}")
         st.stop()
 
 # 3. GESTION DES SESSIONS ET DE LA SÉCURITÉ
