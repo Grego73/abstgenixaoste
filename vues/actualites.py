@@ -21,16 +21,10 @@ def afficher_actualites(db):
         st.subheader("🚀 Les performances de nos licenciés")
         
         try:
-            st.info("🔍 Étape 1 : Tentative de ciblage de la collection 'palmares'...")
             palmares_ref = db.collection("palmares")
+            docs = palmares_ref.get() 
             
-            st.info("🔍 Étape 2 : Récupération immédiate du bloc de données...")
-            # 🎯 AJOUT D'UN TIMEOUT DE 5 SECONDES POUR BRISER LE CHARGEMENT INFINI
-            docs = palmares_ref.get(timeout=5) 
-            
-            st.info("🔍 Étape 3 : Affichage des résultats...")
             palmares_trouve = False
-            
             for doc in docs:
                 palmares_trouve = True
                 data = doc.to_dict()
@@ -47,6 +41,7 @@ def afficher_actualites(db):
                 
         except Exception as e:
             st.error(f"⚠️ Erreur technique lors du chargement des palmarès : {e}")
+
     # --- ONGLET 2 : HISTOIRE ---
     with tab_histoire:
         st.subheader("🌍 L'Âge d'Or Mondial : La Quadrette Roissard / Pioz")
@@ -61,7 +56,7 @@ def afficher_actualites(db):
             
         st.info("📊 Le club comptabilise plus de 40 participations officielles aux phases finales des Championnats de France.")
 
-# --- ONGLET 3 : CONCOURS ---
+    # --- ONGLET 3 : CONCOURS ---
     with tab_concours:
         st.subheader("📅 Événements Officiels")
         
@@ -72,16 +67,18 @@ def afficher_actualites(db):
         st.markdown("#### ➕ Événements programmés :")
         try:
             concours_ref = db.collection("concours")
-            # 🎯 TIMEOUT ICI AUSSI
-            docs = concours_ref.get(timeout=5)
+            docs = concours_ref.get()
             events_found = False
-            for doc in doc in docs:
+            
+            # ✅ CORRIGÉ ICI : Une seule boucle propre 'for doc in docs:'
+            for doc in docs:
                 events_found = True
                 data = doc.to_dict()
                 st.markdown(f"🔹 **{data.get('nom')}**")
                 st.caption(f"Lieu : {data.get('lieu')} | Date : {data.get('date')}")
                 st.write(data.get('description'))
                 st.divider()
+                
             if not events_found:
                 st.info("Aucun concours supplémentaire encodé pour le moment.")
         except Exception as e:
