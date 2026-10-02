@@ -171,3 +171,4 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi de l'e-mail : {e}")
     return False
+
