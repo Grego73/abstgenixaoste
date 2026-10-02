@@ -5,6 +5,7 @@ def afficher_contact(db):
     st.title("✉️ Contacter le Secrétariat")
     st.markdown("---")
     
+    # Tout le formulaire est strictement confiné à l'intérieur de la fonction
     with st.form("contact_form", clear_on_submit=True):
         nom = st.text_input("Votre Nom / Prénom")
         email_visiteur = st.text_input("Votre Adresse E-mail")
@@ -12,7 +13,7 @@ def afficher_contact(db):
         
         if st.form_submit_button("Envoyer au bureau"):
             if nom and email_visiteur and message:
-                # 1. Sauvegarde locale cryptée/sécurisée dans la base Firestore
+                # 1. Sauvegarde dans la base Firestore
                 db.collection("messages").add({
                     "nom": nom, 
                     "email": email_visiteur, 
@@ -20,12 +21,11 @@ def afficher_contact(db):
                     "statut": "Non lu"
                 })
                 
-                # 2. Construction de la notification e-mail destinée aux administrateurs
-                # Récupération automatique de l'adresse de réception définie dans vos secrets
+                # 2. Envoi de l'alerte e-mail aux administrateurs
                 try:
                     email_admin = st.secrets["brevo"]["sender_email"]
                 except Exception:
-                    email_admin = "bureau@amicale-boule-st-genix-aoste.fr" # Valeur de secours
+                    email_admin = "bureau@amicale-boule-st-genix-aoste.fr"
                     
                 sujet_alerte = f"🔔 Nouveau message reçu de {nom}"
                 html_alerte = f"""
@@ -35,12 +35,10 @@ def afficher_contact(db):
                 <div style='background-color: #F3F4F6; padding: 15px; border-left: 4px solid #1E3A8A; border-radius: 4px;'>
                     {message.replace('\n', '<br>')}
                 </div>
-                <p><br>👉 Connectez-vous sur le <strong>Panneau Administration</strong> du site pour traiter ou archiver ce message.</p>
+                <p><br>👉 Traitez ce message depuis le Panneau Administration.</p>
                 """
                 
-                # 3. Envoi transparent de la notification
                 envoyer_email_brevo(email_admin, sujet_alerte, html_alerte)
-                
-                st.success("Votre message a bien été transmis aux bénévoles du club ! Une alerte a été envoyée au secrétariat.")
+                st.success("Votre message a bien été transmis ! Une alerte a été envoyée au secrétariat.")
             else:
                 st.error("Veuillez remplir l'intégralité du formulaire.")
