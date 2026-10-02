@@ -162,7 +162,7 @@ def envoyer_email_brevo(destinataire_email, sujet, message_html):
   
         with urllib.request.urlopen(req, timeout=5) as response:
             status_code = response.getcode()
-            if status_code == 200 or status_code == 201 or status_code == 202:
+            if status_code == 200 or status_code == 201 or status_code == 202 or status_code == 204:
                 return True
     except Exception as e:
         st.error(f"Erreur technique lors de l'envoi réel de l'e-mail : {e}")
